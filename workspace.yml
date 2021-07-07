@@ -1,0 +1,725 @@
+---
+
+- name:  Setup Environment
+  hosts: localhost
+  vars:
+    bin: "{{ ansible_env.HOME }}/.local/bin"
+    # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+    xdg:
+      - key: xdg_data_home
+        value: "{{ ansible_env.XDG_DATA_HOME   | default(ansible_env.HOME + '/.local/share') }}"
+      - key: xdg_config_home
+        value: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}"
+      - key: xdg_state_home
+        value: "{{ ansible_env.XDG_STATE_HOME  | default(ansible_env.HOME + '/.local/state') }}"
+      - key: xdg_cache_home
+        value: "{{ ansible_env.XDG_CACHE_HOME  | default(ansible_env.HOME + '/.cache') }}"
+  tasks:
+    - name: Ensure XDG variables are configured
+      ansible.builtin.set_fact: {"{{ item.key }}": "{{ item.value }}"}
+      loop: "{{ xdg }}"
+      tags: env
+    - name: Ensure XDG directories exist
+      ansible.builtin.file:
+        path: "{{ item.value }}"
+        state: directory
+      loop: "{{ xdg }}"
+      tags: env
+    - name: Ensure bin variable is set
+      ansible.builtin.set_fact:
+        bin: "{{ bin }}"
+      tags: env
+    - name: "Ensure {{ bin }} exists"
+      ansible.builtin.file:
+        path: "{{ bin }}"
+        state: directory
+      tags: env
+
+- name: ThinkPad
+  hosts: localhost
+  handlers:
+    - name: modprobe thinkpad_acpi
+      ansible.builtin.command: modprobe thinkpad_acpi
+
+    - name: restart thinkfan
+      ansible.builtin.service:
+        name: thinkfan
+        enabled: yes
+  tasks:
+    - name: ThinkPad batter saving/management
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - tlp
+          - tlp-rdw
+      when: '"ThinkPad" in ansible_product_version'
+      tags:
+        - thinkpad
+        - apt
+
+    - name: ThinkPad battery saving/management (X220-specific)
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - acpi-call-dkms
+          - tp-smapi-dkms
+      when: '"ThinkPad X220" in ansible_product_version'
+      tags:
+        - thinkpad
+        - apt
+
+    - name: ThinkPad X220 Fan Management (Packages)
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - lm-sensors
+          - thinkfan
+      when: '"ThinkPad X220" in ansible_product_version'
+      tags:
+        - thinkpad
+        - apt
+
+    - name: ThinkPad X220 Fan Management (Modprobe Conf)
+      become: yes
+      ansible.builtin.copy:
+        dest: /etc/modprobe.d/thinkpad_acpi.conf
+        content: "options thinkpad_acpi fan_control=1"
+      notify: modprobe thinkpad_acpi
+      when: '"ThinkPad X220" in ansible_product_version'
+      tags:
+        - thinkpad
+        - apt
+
+    - name: ThinkPad X220 Fan Management (Thresholds)
+      become: yes
+      ansible.builtin.copy:
+        dest: /etc/thinkfan.yaml
+        backup: yes
+        content: |
+          sensors:
+            - hwmon: /sys/class/thermal/thermal_zone0/temp
+          fans:
+            - tpacpi: /proc/acpi/ibm/fan
+          levels:
+            - [0, 0,  60]
+            - [1, 53, 65]
+            - [2, 55, 66]
+            - [3, 57, 68]
+            - [4, 61, 70]
+            - [5, 64, 71]
+            - [7, 68, 32767]
+      notify: restart thinkfan
+      when: '"ThinkPad X220" in ansible_product_version'
+      tags:
+        - thinkpad
+        - copy
+
+    - name: ThinkPad X220 Fan Management (Service)
+      become: yes
+      ansible.builtin.service:
+        name: thinkfan
+        enabled: yes
+        state: started
+      tags:
+        - thinkpad
+        - service
+
+
+- name: Basic Configs and Packages
+  hosts: localhost
+  tasks:
+    - name: Install packages
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - apt-file
+          - bmake
+          - cryptsetup
+          - dirmngr
+          - emacs
+          - fonts-firacode
+          - fonts-noto-color-emoji
+          - git
+          - gnome-tweak-tool
+          - gnupg2
+          - gnupg-agent
+          - hopenpgp-tools
+          - imagemagick
+          - isync
+          - jq
+          - kitty
+          - libpam-yubico
+          - libpam-u2f
+          - lm-sensors
+          - minicom
+          - msmtp
+          - pcscd
+          - pinentry-curses
+          - pv
+          - python3-pip
+          - python3-pyscard
+          - rlwrap
+          - scdaemon
+          - secure-delete
+          - shellcheck
+          - thinkfan
+          - tmux
+          - tree
+          - unifont
+          - vim
+          - weechat
+          - wget
+          - xclip
+          - youtube-dl
+          - yubikey-manager
+          - yubikey-personalization
+        update_cache: yes
+      tags:
+        - common
+        - apt
+
+- name: Go
+  hosts: localhost
+  vars:
+    go_dest: "{{ xdg_data_home }}"
+  tasks:
+    - name: Install
+      ansible.builtin.unarchive:
+        src: https://golang.org/dl/go1.16.5.linux-amd64.tar.gz
+        dest: "{{ go_dest }}"
+        remote_src: yes
+      tags:
+        - go
+        - unarchive
+
+- name: pup
+  hosts: localhost
+  tasks:
+    - name: Ensure pup
+      ansible.builtin.shell:
+        cmd: go get github.com/ericchiang/pup
+        creates: "{{ ansible_env.GOBIN }}/pup"
+      tags:
+        - pup
+        - shell
+
+- name: Keybase
+  hosts: localhost
+  tasks:
+    - name: Install
+      become: yes
+      ansible.builtin.apt:
+        deb: https://prerelease.keybase.io/keybase_amd64.deb
+      tags:
+        - keybase
+        - apt
+
+- name: Docker CE
+  hosts: localhost
+  vars:
+    - username: mark
+  become: yes
+  tasks:
+    - name: Allow packages over HTTPS
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg2
+          - software-properties-common
+      tags:
+        - docker
+        - apt
+
+    - name: Ensure Docker GPG key is installed in APT
+      ansible.builtin.apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+      tags:
+        - docker
+        - apt_key
+        - apt
+
+    - name: Ensure Docker APT repository is configured
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
+      tags:
+        - docker
+        - apt_repository
+        - apt
+
+    - name: Ensure Docker CE is installed
+      ansible.builtin.apt:
+        name: docker-ce
+        cache_valid_time: 0
+      tags:
+        - docker
+        - apt
+
+    - name: Ensure Docker is running and configured to start on boot
+      ansible.builtin.service:
+        name: docker
+        enabled: yes
+        state: started
+      tags:
+        - docker
+        - service
+
+    - name: "Ensure {{ username }} is in the docker group"
+      ansible.builtin.user:
+        name: "{{ username }}"
+        append: yes
+        groups:
+          - docker
+      tags:
+        - docker
+        - user
+
+- name: kubectl
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Allow packages over HTTPS
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+      tags:
+        - kubectl
+        - apt
+
+    - name: Ensure GPG key is installed in APT
+      ansible.builtin.apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      tags:
+        - kubectl
+        - apt_key
+        - apt
+
+    - name: Ensure APT repository is configured
+      ansible.builtin.apt_repository:
+        repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+      tags:
+        - kubectl
+        - apt_repository
+        - apt
+
+    - name: Ensure packages are installed
+      ansible.builtin.apt:
+        name: kubectl
+        cache_valid_time: 0
+      tags:
+        - kubectl
+        - apt
+
+- name: kind
+  hosts: localhost
+  tasks:
+    - name: Install
+      ansible.builtin.shell: GO111MODULE="on" go get sigs.k8s.io/kind@v0.11.1
+      tags:
+        - kind
+        - shell
+
+- name: Helm
+  hosts: localhost
+  tasks:
+    - name: Install
+      become: yes
+      community.general.snap:
+        name: helm
+        classic: yes
+      tags:
+        - helm
+        - snap
+
+- name: Minecraft
+  hosts: localhost
+  tasks:
+    - name: Install
+      become: yes
+      ansible.builtin.apt:
+        deb: https://launcher.mojang.com/download/Minecraft.deb
+      tags:
+        - minecraft
+        - apt
+
+
+- name: dotfiles
+  hosts: localhost
+  vars:
+    repo_dir: "{{ xdg_data_home }}/dotfiles"
+  tasks:
+    - name: Ensure prerequisites are installed
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - make
+          - stow
+      tags:
+        - dotfiles
+        - apt
+
+    - name: "Checkout to {{ repo_dir }}"
+      ignore_errors: yes
+      ansible.builtin.git:
+        repo: https://github.com/markcaudill/dotfiles.git
+        dest: "{{ repo_dir }}"
+      tags:
+        - dotfiles
+        - git
+
+    - name: Install
+      ansible.builtin.make:
+        chdir: "{{ repo_dir }}"
+        target: stow
+      tags:
+        - dotfiles
+        - make
+
+- name: kgt
+  hosts: localhost
+  vars:
+    repo_dir: "{{ xdg_data_home }}/kgt"
+  tasks:
+    - name: Ensure prerequisites are installed
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - bmake
+      tags:
+        - kgt
+        - apt
+
+    - name: "Checkout to {{ repo_dir }}"
+      ignore_errors: yes
+      ansible.builtin.git:
+        repo: https://github.com/katef/kgt.git
+        recursive: yes
+        dest: "{{ repo_dir }}"
+      tags:
+        - kgt
+        - git
+
+    - name: Install
+      environment:
+        PREFIX: "{{ ansible_env.HOME }}/.local"
+      ansible.builtin.shell: pmake -r install
+      args:
+        chdir: "{{ repo_dir }}"
+      tags:
+        - kgt
+        - make
+
+- name: libfsm
+  hosts: localhost
+  vars:
+    repo_dir: "{{ xdg_data_home }}/libsfm"
+  tasks:
+    - name: Ensure prerequisites are installed
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - bmake
+      tags:
+        - libfsm
+        - apt
+
+    - name: "Checkout to {{ repo_dir }}"
+      ignore_errors: yes
+      ansible.builtin.git:
+        repo: https://github.com/katef/libfsm.git
+        recursive: yes
+        dest: "{{ repo_dir }}"
+      tags:
+        - libfsm
+        - git
+
+    - name: Install
+      environment:
+        PREFIX: "{{ ansible_env.HOME }}/.local"
+      ansible.builtin.shell: pmake -r install
+      args:
+        chdir: "{{ repo_dir }}"
+      tags:
+        - libfsm
+        - make
+
+
+- name: XFCE
+  hosts: localhost
+  vars:
+    natscrollcmd: synclient VertScrollDelta=-110 HorizScrollDelta=-110
+  tasks:
+    - name: Ensure packages are installed
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - xfce4
+          - xserver-xorg-input-synaptics
+          - xfce4-genmon-plugin
+      tags:
+        - xfce
+        - apt
+
+    - name: Ensure reverse scrolling is disabled
+      community.general.xfconf:
+        channel: pointer
+        property: /SynPS2_Synansible.builtin.aptics_TouchPad/ReverseScrolling
+        value: false
+        value_type: bool
+      tags:
+        - xfce
+        - xfconf
+
+    - name: Ensure .config/autostart firectory exists
+      ansible.builtin.file:
+        path: "{{ xdg_config_home }}/autostart"
+        state: directory
+      tags:
+        - xfce
+        - file
+
+    - name: Ensure natural scrolling is configured on startup
+      ansible.builtin.copy:
+        dest: "{{ xdg_config_home }}/autostart/NaturalScrolling.desktop"
+        content: |
+          [Desktop Entry]
+          Encoding=UTF-8
+          Version=0.9.4
+          Type=Application
+          Name=NaturalScroll
+          Comment=Set natural scroll
+          Exec={{ natscrollcmd }}
+          OnlyShowIn=XFCE;
+          StartupNotify=false
+          Terminal=false
+          Hidden=false
+      tags:
+        - xfce
+        - copy
+
+    - name: Ensure natural scrolling is configured for current session
+      ansible.builtin.shell: "{{ natscrollcmd }}"
+      changed_when: false
+      tags:
+        - xfce
+        - shell
+
+- name: Spotify
+  hosts: localhost
+  tasks:
+    - name: Ensure key is installed
+      become: yes
+      ansible.builtin.apt_key:
+        url: https://download.spotify.com/debian/pubkey_0D811D58.gpg
+      tags:
+        - spotify
+        - apt_key
+        - apt
+
+    - name: Ensure repository is configured
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: deb http://repository.spotify.com stable non-free
+        filename: spotify
+      tags:
+        - spotify
+        - apt_repository
+        - apt
+
+    - name: Ensure Spotify is installed
+      become: yes
+      ansible.builtin.apt:
+        name: spotify-client
+        cache_valid_time: 0
+      tags:
+        - spotify
+        - apt
+
+- name: Brave Browser
+  hosts: localhost
+  tasks:
+    - name: Allow packages over HTTPS
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - gnupg2
+      tags:
+        - brave_browser
+        - apt
+
+    - name: Ensure key is installed
+      become: yes
+      ansible.builtin.apt_key:
+        url: https://brave-browser-apt-release.s3.brave.com/brave-core.asc
+      tags:
+        - brave_browser
+        - apt_key
+        - apt
+
+    - name: Ensure repository is configured
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main
+        filename: brave-browser-release
+      tags:
+        - brave_browser
+        - apt_repository
+        - apt
+
+    - name: Ensure Brave is installed
+      become: yes
+      ansible.builtin.apt:
+        name: brave-browser
+        cache_valid_time: 0
+      tags:
+        - brave_browser
+        - apt
+
+- name: Synology Drive
+  hosts: localhost
+  tasks:
+    - name: Ensure package is installed
+      become: yes
+      ansible.builtin.apt:
+        deb: https://global.download.synology.com/download/Utility/SynologyDriveClient/2.0.4-11112/Ubuntu/Installer/x86_64/synology-drive-client-11112.x86_64.deb
+      tags:
+        - synology_drive
+        - apt
+
+- name: Pony
+  hosts: localhost
+  tasks:
+    - name: Ensure pony credential manager is installed
+      ansible.builtin.shell:
+        cmd: go get github.com/jessfraz/pony
+        creates: "{{ ansible_env.GOBIN }}/pony"
+      tags:
+        - pony
+        - shell
+
+- name: Steam
+  hosts: localhost
+  tasks:
+    - name: Ensure package is installed
+      become: yes
+      ansible.builtin.apt:
+        deb: https://cdn.cloudflare.steamstatic.com/client/installer/steam.deb
+      tags:
+        - steam
+        - apt
+
+- name: Leiningen
+  hosts: localhost
+  vars:
+    lein_url: https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
+    lein_installer: "{{bin }}/lein"
+  tasks:
+    - name: Install dependency packages
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - openjdk-11-jdk
+      tags:
+        - apt
+        - leiningen
+        - clojure
+
+    - name: Ensure installer is downloaded
+      ansible.builtin.get_url:
+        url: "{{ lein_url }}"
+        dest: "{{ lein_installer }}"
+        mode: 0700
+      tags:
+        - leiningen
+        - clojure
+        - get_url
+
+    - name: Ensure leiningen is installed
+      ansible.builtin.shell:
+        cmd: "{{ lein_installer }}"
+        creates: "{{ ansible_env.HOME }}/.lein"
+      tags:
+        - leiningen
+        - clojure
+        - shell
+
+- name: VS Code
+  hosts: localhost
+  tasks:
+    - name: Install
+      become: yes
+      ansible.builtin.apt:
+        deb: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64
+      tags:
+        - vscode
+        - apt
+
+- name: Signal
+  hosts: localhost
+  tasks:
+    - name: Ensure key is installed
+      become: yes
+      ansible.builtin.apt_key:
+        url: https://updates.signal.org/desktop/apt/keys.asc
+      tags:
+        - signal
+        - apt_key
+        - apt
+
+    - name: Ensure Signal APT repository is configured
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64] https://updates.signal.org/desktop/apt xenial main"
+        filename: signal
+      tags:
+        - signal
+        - apt_repository
+        - apt
+
+    - name: Ensure Signal is installed
+      become: yes
+      ansible.builtin.apt:
+        name: signal-desktop
+        cache_valid_time: 0
+      tags:
+        - signal
+        - apt
+
+- name: Hashicorp
+  hosts: localhost
+  tasks:
+    - name: Ensure key is installed
+      become: yes
+      ansible.builtin.apt_key:
+        url: https://apt.releases.hashicorp.com/gpg
+      tags:
+        - hashicorp
+        - apt_key
+        - apt
+
+    - name: Ensure APT repository is configured
+      become: yes
+      ansible.builtin.apt_repository:
+        repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+        filename: hashicorp
+      tags:
+        - hashicorp
+        - apt_repository
+        - apt
+
+    - name: Install
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - packer
+          - terraform
+        cache_valid_time: 0
+      tags:
+        - hashicorp
+        - apt
