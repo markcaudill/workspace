@@ -192,6 +192,20 @@
         - go
         - unarchive
 
+- name: Drone CLI
+  hosts: localhost
+  vars:
+    dest: "{{ bin }}"
+  tasks:
+    - name: Install
+      ansible.builtin.unarchive:
+        src: https://github.com/drone/drone-cli/releases/latest/download/drone_linux_amd64.tar.gz
+        dest: "{{ dest }}"
+        remote_src: yes
+      tags:
+        - drone
+        - unarchive
+
 - name: pup
   hosts: localhost
   tasks:
