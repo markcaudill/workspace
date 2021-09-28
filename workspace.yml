@@ -162,6 +162,7 @@
           - scdaemon
           - secure-delete
           - shellcheck
+          - sqlite3
           - thinkfan
           - tmux
           - tree
@@ -178,6 +179,27 @@
         - common
         - apt
 
+- name: Molecule
+  hosts: localhost
+  tasks:
+    - name: Dependencies
+      become: yes
+      ansible.builtin.apt:
+        name:
+          - python3-pip
+          - libssl-dev
+      tags:
+        - molecule
+        - apt
+
+    - name: Install
+      ansible.builtin.pip:
+        name: "molecule[lint,docker]"
+        extra_args: --user
+      tags:
+        - molecule
+        - pip
+
 - name: Go
   hosts: localhost
   vars:
@@ -185,7 +207,7 @@
   tasks:
     - name: Install
       ansible.builtin.unarchive:
-        src: https://golang.org/dl/go1.16.5.linux-amd64.tar.gz
+        src: https://golang.org/dl/go1.16.7.linux-amd64.tar.gz
         dest: "{{ go_dest }}"
         remote_src: yes
       tags:
@@ -336,6 +358,17 @@
         - kind
         - shell
 
+- name: Minikube
+  hosts: localhost
+  tasks:
+    - name: Install
+      become: yes
+      ansible.builtin.apt:
+        deb: https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
+      tags:
+        - minikube
+        - apt
+
 - name: Helm
   hosts: localhost
   tasks:
@@ -358,7 +391,6 @@
       tags:
         - minecraft
         - apt
-
 
 - name: dotfiles
   hosts: localhost
@@ -552,56 +584,13 @@
         - spotify
         - apt
 
-- name: Brave Browser
-  hosts: localhost
-  tasks:
-    - name: Allow packages over HTTPS
-      become: yes
-      ansible.builtin.apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gnupg2
-      tags:
-        - brave_browser
-        - apt
-
-    - name: Ensure key is installed
-      become: yes
-      ansible.builtin.apt_key:
-        url: https://brave-browser-apt-release.s3.brave.com/brave-core.asc
-      tags:
-        - brave_browser
-        - apt_key
-        - apt
-
-    - name: Ensure repository is configured
-      become: yes
-      ansible.builtin.apt_repository:
-        repo: deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main
-        filename: brave-browser-release
-      tags:
-        - brave_browser
-        - apt_repository
-        - apt
-
-    - name: Ensure Brave is installed
-      become: yes
-      ansible.builtin.apt:
-        name: brave-browser
-        cache_valid_time: 0
-      tags:
-        - brave_browser
-        - apt
-
 - name: Synology Drive
   hosts: localhost
   tasks:
     - name: Ensure package is installed
       become: yes
       ansible.builtin.apt:
-        deb: https://global.download.synology.com/download/Utility/SynologyDriveClient/2.0.4-11112/Ubuntu/Installer/x86_64/synology-drive-client-11112.x86_64.deb
+        deb: https://global.download.synology.com/download/Utility/SynologyDriveClient/3.0.1-12667/Ubuntu/Installer/x86_64/synology-drive-client-12667.x86_64.deb
       tags:
         - synology_drive
         - apt
@@ -733,7 +722,77 @@
         name:
           - packer
           - terraform
+          - vault
         cache_valid_time: 0
       tags:
         - hashicorp
         - apt
+
+- name: LÖVE and Lua
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Install
+      ansible.builtin.apt:
+        name:
+          - love
+          - lua5.4
+      tags:
+        - love
+        - lua
+        - apt
+
+
+- name: Node.js
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Ensure key is installed
+      become: yes
+      ansible.builtin.apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+      tags:
+        - nodejs
+        - apt_key
+        - apt
+
+    - name: Set repository
+      ansible.builtin.apt_repository:
+        repo: "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+        filename: nodesource
+      tags:
+        - nodejs
+        - apt_repository
+        - apt
+
+    - name: Install
+      ansible.builtin.apt:
+        name:
+          - nodejs
+      tags:
+        - nodejs
+        - apt
+
+- name: wtfutil
+  hosts: localhost
+  vars:
+    dest: "{{ xdg_data_home }}"
+  tasks:
+    - name: Install
+      ansible.builtin.unarchive:
+        src: https://github.com/wtfutil/wtf/releases/latest/download/wtf_0.38.0_linux_amd64.tar.gz
+        dest: "{{ dest }}"
+        remote_src: yes
+      tags:
+        - wtfutil
+        - unarchive
+
+    - name: Symlink
+      ansible.builtin.file:
+        src: "{{ xdg_data_home }}/wtf_0.38.0_linux_amd64/wtfutil"
+        dest: "{{ bin }}/wtfutil"
+        state: link
+      tags:
+        - wtfutil
+        - file
+
