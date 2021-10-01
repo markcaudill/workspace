@@ -89,6 +89,11 @@
         - common
         - apt
 
+- hosts: localhost
+  tasks:
+    - name: rust development
+      include_tasks: rust.yml
+
 - name: Molecule
   hosts: localhost
   tasks:
