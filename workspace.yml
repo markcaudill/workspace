@@ -687,3 +687,32 @@
       tags:
         - nodejs
         - apt
+
+- name: virtualization
+  hosts: localhost
+  become: true
+  vars:
+    - username: mark
+  tasks:
+    - name: install packages
+      ansible.builtin.apt:
+        name:
+          - qemu-kvm
+          - libvirt-daemon-system
+          - libvirt-clients
+          - bridge-utils
+          - virt-manager
+      tags:
+        - virtualization
+        - apt
+
+    - name: "Ensure {{ username }} is in the necessary groups"
+      ansible.builtin.user:
+        name: "{{ username }}"
+        append: yes
+        groups:
+          - libvirt
+          - kvm
+      tags:
+        - virtualization
+        - user
