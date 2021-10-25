@@ -1,93 +1,11 @@
 ---
 
-- name:  Setup Environment
+- name: Configure Local Workspace
   hosts: localhost
-  vars:
-    bin: "{{ ansible_env.HOME }}/.local/bin"
-    # https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
-    xdg:
-      - key: xdg_data_home
-        value: "{{ ansible_env.XDG_DATA_HOME   | default(ansible_env.HOME + '/.local/share') }}"
-      - key: xdg_config_home
-        value: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}"
-      - key: xdg_state_home
-        value: "{{ ansible_env.XDG_STATE_HOME  | default(ansible_env.HOME + '/.local/state') }}"
-      - key: xdg_cache_home
-        value: "{{ ansible_env.XDG_CACHE_HOME  | default(ansible_env.HOME + '/.cache') }}"
-  tasks:
-    - name: Ensure XDG variables are configured
-      ansible.builtin.set_fact: {"{{ item.key }}": "{{ item.value }}"}
-      loop: "{{ xdg }}"
-      tags: env
-    - name: Ensure XDG directories exist
-      ansible.builtin.file:
-        path: "{{ item.value }}"
-        state: directory
-      loop: "{{ xdg }}"
-      tags: env
-    - name: Ensure bin variable is set
-      ansible.builtin.set_fact:
-        bin: "{{ bin }}"
-      tags: env
-    - name: "Ensure {{ bin }} exists"
-      ansible.builtin.file:
-        path: "{{ bin }}"
-        state: directory
-      tags: env
-
-- name: Basic Configs and Packages
-  hosts: localhost
-  tasks:
-    - name: Install packages
-      become: yes
-      ansible.builtin.apt:
-        name:
-          - apt-file
-          - bmake
-          - cryptsetup
-          - dirmngr
-          - emacs
-          - fonts-firacode
-          - fonts-noto-color-emoji
-          - git
-          - gnome-tweak-tool
-          - gnupg2
-          - gnupg-agent
-          - hopenpgp-tools
-          - imagemagick
-          - isync
-          - jq
-          - kitty
-          - libpam-yubico
-          - libpam-u2f
-          - lm-sensors
-          - minicom
-          - msmtp
-          - pcscd
-          - pinentry-curses
-          - pv
-          - python3-pip
-          - python3-pyscard
-          - rlwrap
-          - scdaemon
-          - secure-delete
-          - shellcheck
-          - sqlite3
-          - thinkfan
-          - tmux
-          - tree
-          - unifont
-          - vim
-          - weechat
-          - wget
-          - xclip
-          - youtube-dl
-          - yubikey-manager
-          - yubikey-personalization
-        update_cache: yes
-      tags:
-        - common
-        - apt
+  vars: []
+  roles:
+    - { role: markcaudill.workspace }
+  tasks: []
 
 - hosts: localhost
   tasks:
@@ -115,20 +33,6 @@
         - molecule
         - pip
 
-- name: Go
-  hosts: localhost
-  vars:
-    go_dest: "{{ xdg_data_home }}"
-  tasks:
-    - name: Install
-      ansible.builtin.unarchive:
-        src: https://golang.org/dl/go1.16.7.linux-amd64.tar.gz
-        dest: "{{ go_dest }}"
-        remote_src: yes
-      tags:
-        - go
-        - unarchive
-
 - name: Drone CLI
   hosts: localhost
   vars:
@@ -143,17 +47,6 @@
         - drone
         - unarchive
 
-- name: pup
-  hosts: localhost
-  tasks:
-    - name: Ensure pup
-      ansible.builtin.shell:
-        cmd: go get github.com/ericchiang/pup
-        creates: "{{ ansible_env.GOBIN }}/pup"
-      tags:
-        - pup
-        - shell
-
 - name: Keybase
   hosts: localhost
   tasks:
@@ -164,67 +57,6 @@
       tags:
         - keybase
         - apt
-
-- name: Docker CE
-  hosts: localhost
-  vars:
-    - username: mark
-  become: yes
-  tasks:
-    - name: Allow packages over HTTPS
-      ansible.builtin.apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-          - gnupg2
-          - software-properties-common
-      tags:
-        - docker
-        - apt
-
-    - name: Ensure Docker GPG key is installed in APT
-      ansible.builtin.apt_key:
-        url: https://download.docker.com/linux/debian/gpg
-      tags:
-        - docker
-        - apt_key
-        - apt
-
-    - name: Ensure Docker APT repository is configured
-      ansible.builtin.apt_repository:
-        repo: "deb [arch=amd64] https://download.docker.com/linux/{{ ansible_distribution | lower }} {{ ansible_distribution_release }} stable"
-      tags:
-        - docker
-        - apt_repository
-        - apt
-
-    - name: Ensure Docker CE is installed
-      ansible.builtin.apt:
-        name: docker-ce
-        cache_valid_time: 0
-      tags:
-        - docker
-        - apt
-
-    - name: Ensure Docker is running and configured to start on boot
-      ansible.builtin.service:
-        name: docker
-        enabled: yes
-        state: started
-      tags:
-        - docker
-        - service
-
-    - name: "Ensure {{ username }} is in the docker group"
-      ansible.builtin.user:
-        name: "{{ username }}"
-        append: yes
-        groups:
-          - docker
-      tags:
-        - docker
-        - user
 
 - name: kubectl
   hosts: localhost
@@ -306,38 +138,6 @@
       tags:
         - minecraft
         - apt
-
-- name: dotfiles
-  hosts: localhost
-  vars:
-    repo_dir: "{{ xdg_data_home }}/dotfiles"
-  tasks:
-    - name: Ensure prerequisites are installed
-      become: yes
-      ansible.builtin.apt:
-        name:
-          - make
-          - stow
-      tags:
-        - dotfiles
-        - apt
-
-    - name: "Checkout to {{ repo_dir }}"
-      ignore_errors: yes
-      ansible.builtin.git:
-        repo: https://github.com/markcaudill/dotfiles.git
-        dest: "{{ repo_dir }}"
-      tags:
-        - dotfiles
-        - git
-
-    - name: Install
-      ansible.builtin.make:
-        chdir: "{{ repo_dir }}"
-        target: stow
-      tags:
-        - dotfiles
-        - make
 
 - name: kgt
   hosts: localhost
@@ -499,28 +299,6 @@
         - spotify
         - apt
 
-- name: Synology Drive
-  hosts: localhost
-  tasks:
-    - name: Ensure package is installed
-      become: yes
-      ansible.builtin.apt:
-        deb: https://global.download.synology.com/download/Utility/SynologyDriveClient/3.0.1-12667/Ubuntu/Installer/x86_64/synology-drive-client-12667.x86_64.deb
-      tags:
-        - synology_drive
-        - apt
-
-- name: Pony
-  hosts: localhost
-  tasks:
-    - name: Ensure pony credential manager is installed
-      ansible.builtin.shell:
-        cmd: go get github.com/jessfraz/pony
-        creates: "{{ ansible_env.GOBIN }}/pony"
-      tags:
-        - pony
-        - shell
-
 - name: Steam
   hosts: localhost
   tasks:
@@ -566,17 +344,6 @@
         - leiningen
         - clojure
         - shell
-
-- name: VS Code
-  hosts: localhost
-  tasks:
-    - name: Install
-      become: yes
-      ansible.builtin.apt:
-        deb: https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64
-      tags:
-        - vscode
-        - apt
 
 - name: Signal
   hosts: localhost
