@@ -12,27 +12,6 @@
     - name: rust development
       include_tasks: rust.yml
 
-- name: Molecule
-  hosts: localhost
-  tasks:
-    - name: Dependencies
-      become: yes
-      ansible.builtin.apt:
-        name:
-          - python3-pip
-          - libssl-dev
-      tags:
-        - molecule
-        - apt
-
-    - name: Install
-      ansible.builtin.pip:
-        name: "molecule[lint,docker]"
-        extra_args: --user
-      tags:
-        - molecule
-        - pip
-
 - name: Drone CLI
   hosts: localhost
   vars:
