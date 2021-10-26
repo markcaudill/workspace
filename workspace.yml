@@ -7,11 +7,6 @@
     - { role: markcaudill.workspace }
   tasks: []
 
-- hosts: localhost
-  tasks:
-    - name: rust development
-      include_tasks: rust.yml
-
 - name: Drone CLI
   hosts: localhost
   vars:
