@@ -2,447 +2,285 @@
 
 - name: Configure Local Workspace
   hosts: localhost
-  vars: []
-  roles:
-    - { role: markcaudill.workspace }
-  tasks: []
-
-- name: Drone CLI
-  hosts: localhost
   vars:
-    dest: "{{ bin }}"
+    workspace_xdg_directories:
+      bin: "{{ ansible_env.HOME }}/.local/bin"
+      cache_home: "{{ ansible_env.XDG_CACHE_HOME | default(ansible_env.HOME + '/.cache') }}"
+      config_home: "{{ ansible_env.XDG_CONFIG_HOME | default(ansible_env.HOME + '/.config') }}"
+      data_home: "{{ ansible_env.XDG_DATA_HOME | default(ansible_env.HOME + '/.local/share') }}"
+      state_home: "{{ ansible_env.XDG_STATE_HOME | default(ansible_env.HOME + '/.local/state') }}"
+
+    workspace_directories:
+      - { path: "{{ workspace_xdg_directories.bin }}", mode: '0750' }
+      - { path: "{{ workspace_xdg_directories.cache_home }}", mode: '0750' }
+      - { path: "{{ workspace_xdg_directories.config_home }}", mode: '0750' }
+      - { path: "{{ workspace_xdg_directories.data_home }}", mode: '0750' }
+      - { path: "{{ workspace_xdg_directories.state_home }}", mode: '0750' }
+      - { path: "{{ ansible_env.HOME }}/.nvm", mode: '0750' }
+
+    workspace_environment:
+      GOBIN: "{{ workspace_xdg_directories.data_home }}/go/bin"
+      GOPATH: "{{ workspace_xdg_directories.data_home }}/go"
+      PATH: "{{ workspace_xdg_directories.data_home }}/go/bin:{{ workspace_xdg_directories.bin }}:{{ ansible_env.PATH }}"
+      XDG_CACHE_HOME: "{{ workspace_xdg_directories.cache_home }}"
+      XDG_CONFIG_HOME: "{{ workspace_xdg_directories.config_home }}"
+      XDG_DATA_HOME: "{{ workspace_xdg_directories.data_home }}"
+      XDG_STATE_HOME: "{{ workspace_xdg_directories.state_home }}"
+      PROFILE: "/dev/null"
+
+    workspace_prerequisite_packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - git
+      - gnupg2
+      - libssl-dev
+      - make
+      - python3-pip
+      - software-properties-common
+      - stow
+
+    workspace_apt_keys:
+      - https://apt.releases.hashicorp.com/gpg
+      - https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+      - https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+      - https://download.docker.com/linux/debian/gpg
+      - https://download.spotify.com/debian/pubkey_0D811D58.gpg
+      - https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      - https://updates.signal.org/desktop/apt/keys.asc
+
+    workspace_apt_repos:
+      - "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main"
+      - "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+      - "deb [arch=amd64] https://updates.signal.org/desktop/apt xenial main"
+      - "deb http://repository.spotify.com stable non-free"
+      - "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+      - "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
+      - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+
+    workspace_apt_debs:
+      - "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
+      - https://cdn.cloudflare.steamstatic.com/client/installer/steam.deb
+      - https://global.download.synology.com/download/Utility/SynologyDriveClient/3.0.1-12674/Ubuntu/Installer/x86_64/synology-drive-client-12674.x86_64.deb
+      - https://launcher.mojang.com/download/Minecraft.deb
+      - https://prerelease.keybase.io/keybase_amd64.deb
+      - https://wallet.trezor.io/data/udev/trezor-udev_2_all.deb
+
+    workspace_services:
+      - { name: docker, enabled: true, state: started }
+
+    workspace_apt_packages:
+      - brave-browser
+      - bridge-utils
+      - docker-ce
+      - duplicity
+      - fonts-firacode
+      - fonts-noto-color-emoji
+      - git
+      - jq
+      - kitty
+      - kubectl
+      - libvirt-clients
+      - libvirt-daemon-system
+      - mpv
+      - nodejs
+      - packer
+      - pv
+      - qemu-kvm
+      - signal-desktop
+      - spotify-client
+      - terraform
+      - tmux
+      - vault
+      - vim
+      - virt-manager
+      - weechat
+      - xclip
+      - youtube-dl
+      - yubikey-manager
+      - yubikey-personalization
+
+    workspace_pip_packages:
+      - { name: "molecule[ansible, lint, docker]", extra_args: --user }
+
+    workspace_archives:
+      - name: ctlptl
+        url: https://github.com/tilt-dev/ctlptl/releases/download/v0.6.0/ctlptl.0.6.0.linux.x86_64.tar.gz
+        dest: "{{ workspace_xdg_directories.bin }}"
+        include: ctlptl
+        creates: "{{ workspace_xdg_directories.bin }}/ctlptl"
+      - name: drone cli
+        url: https://github.com/drone/drone-cli/releases/latest/download/drone_linux_amd64.tar.gz
+        dest: "{{ workspace_xdg_directories.bin }}"
+        creates: "{{ workspace_xdg_directories.bin }}/drone"
+      - name: go
+        url: https://golang.org/dl/go1.17.2.linux-amd64.tar.gz
+        dest: "{{ workspace_xdg_directories.data_home }}"
+
+    workspace_go_packages:
+      - package: github.com/ericchiang/pup@latest
+        creates: "{{ workspace_xdg_directories.data_home }}/go/bin/pup"
+      - package: github.com/jessfraz/pony@latest
+        creates: "{{ workspace_xdg_directories.data_home }}/go/bin/pony"
+
+    workspace_curl_bashes:
+      - url: https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh
+        dest: "{{ workspace_xdg_directories.cache_home }}/tilt_install.sh"
+        creates: "{{ ansible_env.HOME }}/.local/bin/tilt"
+      - url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh
+        dest: "{{ workspace_xdg_directories.cache_home }}/nvm_install.sh"
+        creates: "{{ workspace_xdg_directories.cache_home }}/.nvm"
+
+    workspace_git_repos:
+      - repo: https://github.com/markcaudill/dotfiles.git
+        dest: "{{ workspace_xdg_directories.data_home }}/dotfiles"
+
+    workspace_make_targets:
+      - chdir: "{{ workspace_xdg_directories.data_home }}/dotfiles"
+        target: stow
+        failed_when: false
+
+    workspace_user_groups:
+      - { user: "{{ lookup('env', 'USER') }}", groups: [docker, kvm, libvirt] }
+
   tasks:
-    - name: Install
-      ansible.builtin.unarchive:
-        src: https://github.com/drone/drone-cli/releases/latest/download/drone_linux_amd64.tar.gz
-        dest: "{{ dest }}"
-        remote_src: yes
-      tags:
-        - drone
-        - unarchive
-
-- name: kubectl
-  hosts: localhost
-  become: yes
-  tasks:
-    - name: Allow packages over HTTPS
-      ansible.builtin.apt:
-        name:
-          - apt-transport-https
-          - ca-certificates
-          - curl
-      tags:
-        - kubectl
-        - apt
-
-    - name: Ensure GPG key is installed in APT
-      ansible.builtin.apt_key:
-        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
-      tags:
-        - kubectl
-        - apt_key
-        - apt
-
-    - name: Ensure APT repository is configured
-      ansible.builtin.apt_repository:
-        repo: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
-      tags:
-        - kubectl
-        - apt_repository
-        - apt
-
-    - name: Ensure packages are installed
-      ansible.builtin.apt:
-        name: kubectl
-        cache_valid_time: 0
-      tags:
-        - kubectl
-        - apt
-
-- name: kind
-  hosts: localhost
-  tasks:
-    - name: Install
-      ansible.builtin.shell: GO111MODULE="on" go get sigs.k8s.io/kind@v0.11.1
-      tags:
-        - kind
-        - shell
-
-- name: Minikube
-  hosts: localhost
-  tasks:
-    - name: Install
-      become: yes
-      ansible.builtin.apt:
-        deb: https://storage.googleapis.com/minikube/releases/latest/minikube_latest_amd64.deb
-      tags:
-        - minikube
-        - apt
-
-- name: Helm
-  hosts: localhost
-  tasks:
-    - name: Install
-      become: yes
-      community.general.snap:
-        name: helm
-        classic: yes
-      tags:
-        - helm
-        - snap
-
-- name: Minecraft
-  hosts: localhost
-  tasks:
-    - name: Install
-      become: yes
-      ansible.builtin.apt:
-        deb: https://launcher.mojang.com/download/Minecraft.deb
-      tags:
-        - minecraft
-        - apt
-
-- name: kgt
-  hosts: localhost
-  vars:
-    repo_dir: "{{ xdg_data_home }}/kgt"
-  tasks:
-    - name: Ensure prerequisites are installed
-      become: yes
-      ansible.builtin.apt:
-        name:
-          - bmake
-      tags:
-        - kgt
-        - apt
-
-    - name: "Checkout to {{ repo_dir }}"
-      ignore_errors: yes
-      ansible.builtin.git:
-        repo: https://github.com/katef/kgt.git
-        recursive: yes
-        dest: "{{ repo_dir }}"
-      tags:
-        - kgt
-        - git
-
-    - name: Install
-      environment:
-        PREFIX: "{{ ansible_env.HOME }}/.local"
-      ansible.builtin.shell: pmake -r install
-      args:
-        chdir: "{{ repo_dir }}"
-      tags:
-        - kgt
-        - make
-
-- name: libfsm
-  hosts: localhost
-  vars:
-    repo_dir: "{{ xdg_data_home }}/libsfm"
-  tasks:
-    - name: Ensure prerequisites are installed
-      become: yes
-      ansible.builtin.apt:
-        name:
-          - bmake
-      tags:
-        - libfsm
-        - apt
-
-    - name: "Checkout to {{ repo_dir }}"
-      ignore_errors: yes
-      ansible.builtin.git:
-        repo: https://github.com/katef/libfsm.git
-        recursive: yes
-        dest: "{{ repo_dir }}"
-      tags:
-        - libfsm
-        - git
-
-    - name: Install
-      environment:
-        PREFIX: "{{ ansible_env.HOME }}/.local"
-      ansible.builtin.shell: pmake -r install
-      args:
-        chdir: "{{ repo_dir }}"
-      tags:
-        - libfsm
-        - make
-
-
-- name: XFCE
-  hosts: localhost
-  vars:
-    natscrollcmd: synclient VertScrollDelta=-110 HorizScrollDelta=-110
-  tasks:
-    - name: Ensure packages are installed
-      become: yes
-      ansible.builtin.apt:
-        name:
-          - xfce4
-          - xserver-xorg-input-synaptics
-          - xfce4-genmon-plugin
-      tags:
-        - xfce
-        - apt
-
-    - name: Ensure reverse scrolling is disabled
-      community.general.xfconf:
-        channel: pointer
-        property: /SynPS2_Synansible.builtin.aptics_TouchPad/ReverseScrolling
-        value: false
-        value_type: bool
-      tags:
-        - xfce
-        - xfconf
-
-    - name: Ensure .config/autostart firectory exists
-      ansible.builtin.file:
-        path: "{{ xdg_config_home }}/autostart"
-        state: directory
-      tags:
-        - xfce
-        - file
-
-    - name: Ensure natural scrolling is configured on startup
-      ansible.builtin.copy:
-        dest: "{{ xdg_config_home }}/autostart/NaturalScrolling.desktop"
-        content: |
-          [Desktop Entry]
-          Encoding=UTF-8
-          Version=0.9.4
-          Type=Application
-          Name=NaturalScroll
-          Comment=Set natural scroll
-          Exec={{ natscrollcmd }}
-          OnlyShowIn=XFCE;
-          StartupNotify=false
-          Terminal=false
-          Hidden=false
-      tags:
-        - xfce
-        - copy
-
-    - name: Ensure natural scrolling is configured for current session
-      ansible.builtin.shell: "{{ natscrollcmd }}"
+    - name: stop packagekit so it won't interfere with package installation
+      become: true
+      ansible.builtin.service:
+        name: packagekit
+        state: stopped
+      failed_when: false
       changed_when: false
-      tags:
-        - xfce
-        - shell
 
-- name: Spotify
-  hosts: localhost
-  tasks:
-    - name: Ensure key is installed
-      become: yes
+
+    - name: ensure directories are present
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        mode: "{{ item.mode }}"
+        state: directory
+      loop: "{{ workspace_directories }}"
+
+
+    - name: ensure prerequisite packages are installed
+      become: true
+      ansible.builtin.apt:
+        name: "{{ workspace_prerequisite_packages }}"
+        update_cache: true
+
+
+    - name: ensure apt keys are installed
+      become: true
       ansible.builtin.apt_key:
-        url: https://download.spotify.com/debian/pubkey_0D811D58.gpg
-      tags:
-        - spotify
-        - apt_key
-        - apt
+        url: "{{ item }}"
+      loop: "{{ workspace_apt_keys }}"
 
-    - name: Ensure repository is configured
-      become: yes
+
+    - name: ensure apt repos are configured
+      become: true
       ansible.builtin.apt_repository:
-        repo: deb http://repository.spotify.com stable non-free
-        filename: spotify
-      tags:
-        - spotify
-        - apt_repository
-        - apt
+        repo: "{{ item }}"
+      loop: "{{ workspace_apt_repos }}"
 
-    - name: Ensure Spotify is installed
-      become: yes
+
+    - name: ensure packages are installed
+      become: true
       ansible.builtin.apt:
-        name: spotify-client
-        cache_valid_time: 0
-      tags:
-        - spotify
-        - apt
+        name: "{{ workspace_apt_packages }}"
+        update_cache: true
 
-- name: Steam
-  hosts: localhost
-  tasks:
-    - name: Ensure package is installed
-      become: yes
+
+    - name: ensure package debs are installed
+      become: true
       ansible.builtin.apt:
-        deb: https://cdn.cloudflare.steamstatic.com/client/installer/steam.deb
-      tags:
-        - steam
-        - apt
+        deb: "{{ item }}"
+      loop: "{{ workspace_apt_debs }}"
 
-- name: Leiningen
-  hosts: localhost
-  vars:
-    lein_url: https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein
-    lein_installer: "{{bin }}/lein"
-  tasks:
-    - name: Install dependency packages
+
+    - name: ensure services are configured
+      become: true
+      ansible.builtin.service:
+        name: "{{ item.name }}"
+        enabled: "{{ item.enabled }}"
+        state: "{{ item.state }}"
+      loop: "{{ workspace_services }}"
+
+
+    - name: ensure pip packages are installed
+      environment: "{{ workspace_environment }}"
+      ansible.builtin.pip:
+        name: "{{ item.name }}"
+        extra_args: "{{ item.extra_args }}"
+      loop: "{{ workspace_pip_packages }}"
+
+
+    - name: ensure archives are installed
+      ansible.builtin.unarchive:
+        src: "{{ item.url }}"
+        dest: "{{ item.dest }}"
+        remote_src: true
+        include: "{{ item.include | default(omit) }}"
+        creates: "{{ item.creates | default(omit) }}"
+      loop: "{{ workspace_archives }}"
+
+
+    - name: ensure go packages are installed
+      environment: "{{ workspace_environment }}"
+      ansible.builtin.command:
+        cmd: "go install {{ item.package }}"
+        creates: "{{ item.creates }}"
+      loop: "{{ workspace_go_packages }}"
+
+
+    - name: ensure curl|bash software is installed
+      environment: "{{ workspace_environment }}"
+      block:
+        - name: ensure curl|bash scripts are downloaded
+          become: "{{ item.become|default(false) }}"
+          ansible.builtin.get_url:
+            url: "{{ item.url }}"
+            dest: "{{ item.dest }}"
+            mode: "{{ item.mode | default('0700') }}"
+          loop: "{{ workspace_curl_bashes }}"
+
+        - name: ensure curl|bash scripts are executed
+          become: "{{ item.become | default(false) }}"
+          ansible.builtin.command:
+            cmd: bash {{ item.dest }}
+            creates: "{{ item.creates }}"
+          loop: "{{ workspace_curl_bashes }}"
+
+
+    - name: ensure git repositories are cloned
+      ansible.builtin.git: # noqa git-latest
+        repo: "{{ item.repo }}"
+        dest: "{{ item.dest }}"
+      changed_when: false
+      loop: "{{ workspace_git_repos }}"
+
+
+    - name: ensure make targets are run
+      ansible.builtin.make:
+        chdir: "{{ item.chdir }}"
+        target: "{{ item.target }}"
+      changed_when: false
+      failed_when: item.failed_when
+      loop: "{{ workspace_make_targets }}"
+
+
+    - name: ensure users are in groups
       become: yes
-      ansible.builtin.apt:
-        name:
-          - openjdk-11-jdk
-      tags:
-        - apt
-        - leiningen
-        - clojure
-
-    - name: Ensure installer is downloaded
-      ansible.builtin.get_url:
-        url: "{{ lein_url }}"
-        dest: "{{ lein_installer }}"
-        mode: 0700
-      tags:
-        - leiningen
-        - clojure
-        - get_url
-
-    - name: Ensure leiningen is installed
-      ansible.builtin.shell:
-        cmd: "{{ lein_installer }}"
-        creates: "{{ ansible_env.HOME }}/.lein"
-      tags:
-        - leiningen
-        - clojure
-        - shell
-
-- name: Signal
-  hosts: localhost
-  tasks:
-    - name: Ensure key is installed
-      become: yes
-      ansible.builtin.apt_key:
-        url: https://updates.signal.org/desktop/apt/keys.asc
-      tags:
-        - signal
-        - apt_key
-        - apt
-
-    - name: Ensure Signal APT repository is configured
-      become: yes
-      ansible.builtin.apt_repository:
-        repo: "deb [arch=amd64] https://updates.signal.org/desktop/apt xenial main"
-        filename: signal
-      tags:
-        - signal
-        - apt_repository
-        - apt
-
-    - name: Ensure Signal is installed
-      become: yes
-      ansible.builtin.apt:
-        name: signal-desktop
-        cache_valid_time: 0
-      tags:
-        - signal
-        - apt
-
-- name: Hashicorp
-  hosts: localhost
-  tasks:
-    - name: Ensure key is installed
-      become: yes
-      ansible.builtin.apt_key:
-        url: https://apt.releases.hashicorp.com/gpg
-      tags:
-        - hashicorp
-        - apt_key
-        - apt
-
-    - name: Ensure APT repository is configured
-      become: yes
-      ansible.builtin.apt_repository:
-        repo: "deb [arch=amd64] https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
-        filename: hashicorp
-      tags:
-        - hashicorp
-        - apt_repository
-        - apt
-
-    - name: Install
-      become: yes
-      ansible.builtin.apt:
-        name:
-          - packer
-          - terraform
-          - vault
-        cache_valid_time: 0
-      tags:
-        - hashicorp
-        - apt
-
-- name: LÖVE and Lua
-  hosts: localhost
-  become: yes
-  tasks:
-    - name: Install
-      ansible.builtin.apt:
-        name:
-          - love
-          - lua5.4
-      tags:
-        - love
-        - lua
-        - apt
-
-
-- name: Node.js
-  hosts: localhost
-  become: yes
-  tasks:
-    - name: Ensure key is installed
-      become: yes
-      ansible.builtin.apt_key:
-        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
-      tags:
-        - nodejs
-        - apt_key
-        - apt
-
-    - name: Set repository
-      ansible.builtin.apt_repository:
-        repo: "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
-        filename: nodesource
-      tags:
-        - nodejs
-        - apt_repository
-        - apt
-
-    - name: Install
-      ansible.builtin.apt:
-        name:
-          - nodejs
-      tags:
-        - nodejs
-        - apt
-
-- name: virtualization
-  hosts: localhost
-  become: true
-  vars:
-    - username: mark
-  tasks:
-    - name: install packages
-      ansible.builtin.apt:
-        name:
-          - qemu-kvm
-          - libvirt-daemon-system
-          - libvirt-clients
-          - bridge-utils
-          - virt-manager
-      tags:
-        - virtualization
-        - apt
-
-    - name: "Ensure {{ username }} is in the necessary groups"
       ansible.builtin.user:
-        name: "{{ username }}"
-        append: yes
-        groups:
-          - libvirt
-          - kvm
-      tags:
-        - virtualization
-        - user
+        name: "{{ item.user }}"
+        append: true
+        groups: "{{ item.groups }}"
+      loop: "{{ workspace_user_groups }}"
+
+
+    - name: reenable packagekit
+      become: true
+      ansible.builtin.service:
+        name: packagekit
+        state: started
+      failed_when: false
+      changed_when: false
+
