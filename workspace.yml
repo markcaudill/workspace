@@ -145,6 +145,11 @@
     workspace_user_groups:
       - { user: "{{ lookup('env', 'USER') }}", groups: [docker, kvm, libvirt] }
 
+    workspace_bins:
+      - url: https://github.com/openfaas/faas-cli/releases/latest/download/faas-cli
+        dest: "{{ ansible_env.HOME }}/.local/bin/faas-cli"
+        creates: "{{ ansible_env.HOME }}/.local/bin/faas-cli"
+
   tasks:
     - name: stop packagekit so it won't interfere with package installation
       become: true
@@ -250,6 +255,17 @@
             cmd: bash {{ item.dest }}
             creates: "{{ item.creates }}"
           loop: "{{ workspace_curl_bashes }}"
+
+    - name: ensure direct-download software is installed
+      environment: "{{ workspace_environment }}"
+      block:
+        - name: ensure direct-download software is downloaded
+          become: "{{ item.become|default(false) }}"
+          ansible.builtin.get_url:
+            url: "{{ item.url }}"
+            dest: "{{ item.dest }}"
+            mode: "{{ item.mode | default('0700') }}"
+          loop: "{{ workspace_bins }}"
 
 
     - name: ensure git repositories are cloned
