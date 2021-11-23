@@ -152,6 +152,9 @@
       - url: https://github.com/openfaas/faas-cli/releases/latest/download/faas-cli
         dest: "{{ ansible_env.HOME }}/.local/bin/faas-cli"
         creates: "{{ ansible_env.HOME }}/.local/bin/faas-cli"
+      - url: https://github.com/alexellis/arkade/releases/latest/download/arkade
+        dest: "{{ ansible_env.HOME }}/.local/bin/arkade"
+        creates: "{{ ansible_env.HOME }}/.local/bin/arkade"
 
   tasks:
     - name: stop packagekit so it won't interfere with package installation
