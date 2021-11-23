@@ -89,6 +89,7 @@
       - packer
       - pv
       - qemu-kvm
+      - ranger
       - signal-desktop
       - spotify-client
       - terraform
