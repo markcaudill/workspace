@@ -116,7 +116,7 @@
         dest: "{{ workspace_xdg_directories.bin }}"
         creates: "{{ workspace_xdg_directories.bin }}/drone"
       - name: go
-        url: https://golang.org/dl/go1.17.2.linux-amd64.tar.gz
+        url: https://golang.org/dl/go1.17.3.linux-amd64.tar.gz
         dest: "{{ workspace_xdg_directories.data_home }}"
 
     workspace_go_packages:
