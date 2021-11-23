@@ -125,6 +125,8 @@
         creates: "{{ workspace_xdg_directories.data_home }}/go/bin/pup"
       - package: github.com/jessfraz/pony@latest
         creates: "{{ workspace_xdg_directories.data_home }}/go/bin/pony"
+      - package: sigs.k8s.io/kind@v0.11.1
+        creates: "{{ workspace_xdg_directories.data_home }}/go/bin/kind"
 
     workspace_curl_bashes:
       - url: https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh
