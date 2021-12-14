@@ -79,6 +79,7 @@
       - fonts-noto-color-emoji
       - git
       - jq
+      - kicad
       - kitty
       - kubectl
       - libvirt-clients
