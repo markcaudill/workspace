@@ -45,15 +45,11 @@
       - https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
       - https://deb.nodesource.com/gpgkey/nodesource.gpg.key
       - https://download.docker.com/linux/debian/gpg
-      - https://download.spotify.com/debian/pubkey_0D811D58.gpg
       - https://packages.cloud.google.com/apt/doc/apt-key.gpg
-      - https://updates.signal.org/desktop/apt/keys.asc
 
     workspace_apt_repos:
       - "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main"
       - "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
-      - "deb [arch=amd64] https://updates.signal.org/desktop/apt xenial main"
-      - "deb http://repository.spotify.com stable non-free"
       - "deb https://apt.kubernetes.io/ kubernetes-xenial main"
       - "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
       - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
@@ -91,8 +87,6 @@
       - pv
       - qemu-kvm
       - ranger
-      - signal-desktop
-      - spotify-client
       - terraform
       - tmux
       - vault
@@ -103,6 +97,12 @@
       - youtube-dl
       - yubikey-manager
       - yubikey-personalization
+
+    workspace_flatpaks:
+      - name: org.signal.Signal
+        method: user
+        remote: flathub
+      - name: com.spotify.Client
 
     workspace_pip_packages:
       - { name: "molecule[ansible, lint, docker]", extra_args: --user }
@@ -208,6 +208,17 @@
       ansible.builtin.apt:
         deb: "{{ item }}"
       loop: "{{ workspace_apt_debs }}"
+
+
+    - name: ensure flatpaks are installed
+      become: "{{ item.become|default(false)|bool }}"
+      community.general.flatpak:
+        method: "{{ item.method|default('user') }}"
+        name: "{{ item.name }}"
+        no_dependencies: "{{ item.no_dependencies|default(omit) }}"
+        remote: "{{ item.remote|default(omit) }}"
+        state: "{{ item.state|default(omit) }}"
+      loop: "{{ workspace_flatpaks }}"
 
 
     - name: ensure services are configured
