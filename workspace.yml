@@ -81,19 +81,25 @@
       - kubectl
       - libvirt-clients
       - libvirt-daemon-system
+      - lm-sensors
+      - lutris
       - m4
       - mpv
+      - neofetch
       - nodejs
       - packer
+      - psensor
       - pv
       - qemu-kvm
       - ranger
       - terraform
+      - thunderbird
       - tmux
       - vault
       - vim
       - virt-manager
       - weechat
+      - winetricks
       - xclip
       - youtube-dl
       - yubikey-manager
