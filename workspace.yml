@@ -147,7 +147,7 @@
         failed_when: false
 
     workspace_user_groups:
-      - { user: "{{ lookup('env', 'USER') }}", groups: [docker, kvm, libvirt] }
+      - { user: "{{ lookup('env', 'USER') }}", groups: [dialout, docker, kvm, libvirt] }
 
     workspace_bins:
       - url: https://github.com/openfaas/faas-cli/releases/latest/download/faas-cli
