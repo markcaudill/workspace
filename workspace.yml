@@ -61,6 +61,7 @@
       - https://launcher.mojang.com/download/Minecraft.deb
       - https://prerelease.keybase.io/keybase_amd64.deb
       - https://wallet.trezor.io/data/udev/trezor-udev_2_all.deb
+      - "https://discord.com/api/download?platform=linux&format=deb"
 
     workspace_services:
       - { name: docker, enabled: true, state: started }
