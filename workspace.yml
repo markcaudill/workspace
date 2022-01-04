@@ -71,6 +71,7 @@
       - bridge-utils
       - deja-dup
       - docker-ce
+      - docker-compose
       - duplicity
       - fonts-firacode
       - fonts-noto-color-emoji
