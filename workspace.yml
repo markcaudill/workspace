@@ -157,6 +157,7 @@
     workspace_git_repos:
       - repo: https://github.com/markcaudill/dotfiles.git
         dest: "{{ workspace_xdg_directories.data_home }}/dotfiles"
+        force: true
 
     workspace_make_targets:
       - chdir: "{{ workspace_xdg_directories.data_home }}/dotfiles"
@@ -309,6 +310,7 @@
       ansible.builtin.git: # noqa git-latest
         repo: "{{ item.repo }}"
         dest: "{{ item.dest }}"
+        force: "{{ item.force|default(omit) }}"
       changed_when: false
       loop: "{{ workspace_git_repos }}"
 
