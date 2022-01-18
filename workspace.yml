@@ -46,6 +46,7 @@
       - https://deb.nodesource.com/gpgkey/nodesource.gpg.key
       - https://download.docker.com/linux/debian/gpg
       - https://packages.cloud.google.com/apt/doc/apt-key.gpg
+      - https://cli.github.com/packages/githubcli-archive-keyring.gpg
 
     workspace_apt_repos:
       - "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main"
@@ -53,6 +54,7 @@
       - "deb https://apt.kubernetes.io/ kubernetes-xenial main"
       - "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
       - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
+      - "deb [arch=amd64] https://cli.github.com/packages stable main"
 
     workspace_apt_debs:
       - "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
@@ -76,6 +78,7 @@
       - fonts-firacode
       - fonts-noto-color-emoji
       - gcc-multilib
+      - gh
       - gimp
       - git
       - jq
@@ -338,13 +341,3 @@
         append: true
         groups: "{{ item.groups }}"
       loop: "{{ workspace_user_groups }}"
-
-
-    - name: reenable packagekit
-      become: true
-      ansible.builtin.service:
-        name: packagekit
-        state: started
-      failed_when: false
-      changed_when: false
-
