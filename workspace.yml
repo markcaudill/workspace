@@ -150,6 +150,9 @@
       - url: https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh
         dest: "{{ workspace_xdg_directories.cache_home }}/nvm_install.sh"
         creates: "{{ workspace_xdg_directories.cache_home }}/.nvm"
+      - url: https://get.pulumi.com
+        dest: "{{ workspace_xdg_directories.cache_home }}/pulumi_install.sh"
+        creates: "{{ ansible_env.HOME }}/.pulumi/bin/pulumi"
 
     workspace_git_repos:
       - repo: https://github.com/markcaudill/dotfiles.git
