@@ -175,6 +175,13 @@
         dest: "{{ ansible_env.HOME }}/.local/bin/arkade"
         creates: "{{ ansible_env.HOME }}/.local/bin/arkade"
 
+  handlers:
+    - name: start packagekit
+      become: true
+      ansible.builtin.service:
+        name: packagekit
+        state: started
+
   tasks:
     - name: stop packagekit so it won't interfere with package installation
       become: true
@@ -182,7 +189,7 @@
         name: packagekit
         state: stopped
       failed_when: false
-      changed_when: false
+      notify: start packagekit
 
 
     - name: ensure directories are present
