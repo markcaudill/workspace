@@ -75,14 +75,19 @@
       - duplicity
       - fonts-firacode
       - fonts-noto-color-emoji
+      - gcc-multilib
+      - gimp
       - git
       - jq
       - kicad
       - kitty
       - kubectl
+      - libarchive-zip-perl
+      - libncurses-dev
       - libvirt-clients
       - libvirt-daemon-system
       - lm-sensors
+      - logisim
       - lutris
       - m4
       - mpv
