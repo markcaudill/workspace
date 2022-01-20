@@ -136,7 +136,10 @@
         dest: "{{ workspace_xdg_directories.bin }}"
         creates: "{{ workspace_xdg_directories.bin }}/drone"
       - name: go
-        url: https://golang.org/dl/go1.17.3.linux-amd64.tar.gz
+        url: https://go.dev/dl/go1.17.6.linux-amd64.tar.gz
+        dest: "{{ workspace_xdg_directories.data_home }}"
+      - name: wtfutil
+        url: https://github.com/wtfutil/wtf/releases/latest/download/wtf_0.41.0_linux_amd64.tar.gz
         dest: "{{ workspace_xdg_directories.data_home }}"
 
     workspace_go_packages:
@@ -178,6 +181,11 @@
       - url: https://github.com/alexellis/arkade/releases/latest/download/arkade
         dest: "{{ ansible_env.HOME }}/.local/bin/arkade"
         creates: "{{ ansible_env.HOME }}/.local/bin/arkade"
+
+    workspace_files:
+      - src: "{{ workspace_xdg_directories.data_home }}/wtf_0.41.0_linux_amd64/wtfutil"
+        dest: "{{ workspace_xdg_directories.bin }}/wtfutil"
+        state: link
 
   handlers:
     - name: start packagekit
@@ -342,3 +350,13 @@
         append: true
         groups: "{{ item.groups }}"
       loop: "{{ workspace_user_groups }}"
+
+
+    - name: ensure files and links are in place
+      ansible.builtin.file:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        state: "{{ item.state }}"
+        owner: "{{ item.owner|default(omit) }}"
+        group: "{{ item.group|default(omit) }}"
+      loop: "{{ workspace_files }}"
