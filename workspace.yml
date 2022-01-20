@@ -64,6 +64,7 @@
       - https://prerelease.keybase.io/keybase_amd64.deb
       - https://wallet.trezor.io/data/udev/trezor-udev_2_all.deb
       - "https://discord.com/api/download?platform=linux&format=deb"
+      - https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2020.03.04_amd64.deb
 
     workspace_services:
       - { name: docker, enabled: true, state: started }
