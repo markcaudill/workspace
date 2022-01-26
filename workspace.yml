@@ -78,10 +78,14 @@
       - duplicity
       - fonts-firacode
       - fonts-noto-color-emoji
+      - fritzing
       - gcc-multilib
       - gh
       - gimp
       - git
+      - gnupg2
+      - gnupg-agent
+      - hopenpgp-tools
       - jq
       - kicad
       - kitty
@@ -98,10 +102,12 @@
       - neofetch
       - nodejs
       - packer
+      - pcscd
       - psensor
       - pv
       - qemu-kvm
       - ranger
+      - scdaemon
       - terraform
       - thunderbird
       - tmux
@@ -112,6 +118,7 @@
       - winetricks
       - xclip
       - xmlstarlet
+      - xournal
       - youtube-dl
       - yubikey-manager
       - yubikey-personalization
