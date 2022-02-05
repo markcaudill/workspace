@@ -1,5 +1,8 @@
 # workspace
 
+[![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/markcaudill/workspace/CI/main)](https://github.com/markcaudill/workspace/actions/workflows/ci.yml)
+[![GitHub](https://img.shields.io/github/license/markcaudill/workspace)](LICENSE)
+
 ## Description
 
 An [Ansible](https://docs.ansible.com/ansible/latest/index.html) playbook to automate the setup of my development/sysadmin/etc. workspace as much as possible. It is currently targeting Ubuntu but would likely work on any Debian-base distribution.
@@ -152,6 +155,8 @@ keys:
 - `mode`
 
 ## Execution
+
+Run using `ansible-playbook workspace.yml -K -i 'localhost ansible_connection=local,'`
 
 - `packagekit` is stopped if it's running as it often blocks APT tasks
 - `workspace_directories` are created
