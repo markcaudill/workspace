@@ -18,4 +18,4 @@ jobs:
           submodules: recursive
 
       - name: Test
-        run: ansible-plabook workspace.yml
+        run: ansible-playbook workspace.yml
