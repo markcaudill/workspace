@@ -18,4 +18,4 @@ jobs:
           submodules: recursive
 
       - name: Test
-        run: ansible-playbook workspace.yml
+        run: ansible-playbook workspace.yml -i 'localhost ansible_connection=local,'
