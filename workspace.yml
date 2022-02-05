@@ -55,6 +55,7 @@
       - "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
       - "deb https://deb.nodesource.com/node_16.x {{ ansible_distribution_release }} main"
       - "deb [arch=amd64] https://cli.github.com/packages stable main"
+      - "ppa:lutris-team/lutris"
 
     workspace_apt_debs:
       - "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
