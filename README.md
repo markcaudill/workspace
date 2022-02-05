@@ -113,7 +113,7 @@ keys:
 
 ### `workspace_make_targets`
 
-a list of dictionaries of [Make(https://www.gnu.org/software/make/) targets to run (using [`community.general.make`](https://docs.ansible.com/ansible/latest/collections/community/general/make_module.html))
+a list of dictionaries of [Make](https://www.gnu.org/software/make/) targets to run (using [`community.general.make`](https://docs.ansible.com/ansible/latest/collections/community/general/make_module.html))
 
 keys `chdir`, `target`, and `failed_when` are required
 
