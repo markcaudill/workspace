@@ -110,6 +110,7 @@
       - scdaemon
       - terraform
       - thunderbird
+      - tidy
       - tmux
       - vault
       - vim
