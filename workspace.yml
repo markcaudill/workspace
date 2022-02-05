@@ -343,7 +343,7 @@
 
 
     - name: ensure make targets are run
-      ansible.builtin.make:
+      community.general.make:
         chdir: "{{ item.chdir }}"
         target: "{{ item.target }}"
       changed_when: false
