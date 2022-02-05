@@ -1,0 +1,21 @@
+---
+name: CI
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Dependencies
+        run: |
+            sudo apt -y install python3-pip
+            pip3 install --user ansible ansible-lint
+
+      - name: Check Out Repo
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Test
+        run: ansible-plabook workspace.yml
