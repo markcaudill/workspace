@@ -4,6 +4,10 @@
 
 An [Ansible](https://docs.ansible.com/ansible/latest/index.html) playbook to automate the setup of my development/sysadmin/etc. workspace as much as possible. It is currently targeting Ubuntu but would likely work on any Debian-base distribution.
 
+## Prerequisites
+
+- [`community.general`](https://docs.ansible.com/ansible/latest/collections/community/general/index.html) collection
+
 ## Structure and Configuration
 
 All configuration is contained in `vars` dictionary.
