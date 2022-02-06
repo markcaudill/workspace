@@ -10,8 +10,9 @@ jobs:
       - name: Install Dependencies
         run: |
             sudo apt -y update
+            sudo apt -y upgrade
             sudo apt -y install python3-pip
-            pip3 install --user ansible ansible-lint
+            pip3 install ansible ansible-lint
 
       - name: Check Out Repo
         uses: actions/checkout@v2
