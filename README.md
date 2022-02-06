@@ -55,7 +55,7 @@ the keys `name`, `enabled`, and `state` are required
 
 ### `workspace_apt_packages`
 
-a list of packages to install (using [`ansible.builtin.apt_repository](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_repository_module.html))
+a list of packages to install (using [`ansible.builtin.apt_repository`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_repository_module.html))
 
 ### `workspace_flatpaks`
 
