@@ -41,7 +41,7 @@ a list of paths to GPG keys to be installed (using [`ansible.builtin.apt_key`](h
 
 ### `workspace_apt_repos`
 
-a list of APT repositories to configure (using [`ansible.builtin.apt_repository](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_repository_module.html))
+a list of APT repositories to configure (using [`ansible.builtin.apt_repository`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_repository_module.html))
 
 ### `workspace_apt_debs`
 
