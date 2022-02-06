@@ -126,6 +126,10 @@
       - yubikey-manager
       - yubikey-personalization
 
+    workspace_flatpak_remotes:
+      - name: flathub
+        flatpakrepo_url: https://flathub.org/repo/flathub.flatpakrepo
+
     workspace_flatpaks:
       - name: org.signal.Signal
         method: user
@@ -259,6 +263,15 @@
         deb: "{{ item }}"
       loop: "{{ workspace_apt_debs }}"
       failed_when: false
+
+    - name: ensure flatpak remotes are configured
+      become: "{{ item.become|default(false)|bool }}"
+      community.general.flatpak_remote:
+        method: "{{ item.method|default('user') }}"
+        name: "{{ item.name }}"
+        flatpakrepo_url: "{{ item.flatpakrepo_url|default(omit) }}"
+        state: "{{ item.state|default(omit) }}"
+      loop: "{{ workspace_flatpak_remotes }}"
 
 
     - name: ensure flatpaks are installed

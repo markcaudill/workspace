@@ -57,6 +57,17 @@ the keys `name`, `enabled`, and `state` are required
 
 a list of packages to install (using [`ansible.builtin.apt_repository`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_repository_module.html))
 
+### `workspace_flatpak_remotes`
+
+a list of dictionaries of [flatpak repositories](https://docs.flatpak.org/en/latest/repositories.html) to configure using [`community.general.flatpak_remote`](https://docs.ansible.com/ansible/latest/collections/community/general/flatpak_remote_module.html#ansible-collections-community-general-flatpak-remote-module)
+
+keys:
+
+- `method` (default `'user'`)
+- `name` required
+- `flatpakrepo_url` (required when `state` = `present` or not specified)
+- `state`
+
 ### `workspace_flatpaks`
 
 a list of dictionaries of [flatpaks](https://www.flatpak.org/) to install (using [`community.general.flatpak`](https://docs.ansible.com/ansible/latest/collections/community/general/flatpak_module.html))
