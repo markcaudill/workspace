@@ -179,6 +179,10 @@ keys are the same as the underlying module:
 - `sysctl_set`
 - `value`
 
+### `workspace_update_all_packages`
+
+update and upgrade all packages (using the [`ansible.builtin.apt`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html))
+
 ## Execution
 
 Run using `ansible-playbook workspace.yml -K -i 'localhost ansible_connection=local,'`

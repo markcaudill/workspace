@@ -207,6 +207,8 @@
       - name: fs.inotify.max_user_watches
         value: 524288
 
+    workspace_update_all_packages: true
+
   handlers:
     - name: start packagekit
       become: true
@@ -402,3 +404,11 @@
         sysctl_set: "{{ item.sysctl_set|default(omit) }}"
         value: "{{ item.value|default(omit) }}"
       loop: "{{ workspace_sysctl }}"
+
+    - name: ensure all packages are up to date
+      become: true
+      ansible.builtin.apt:
+        name: '*'
+        state: latest
+        update_cache: true
+      when: workspace_update_all_packages is true
