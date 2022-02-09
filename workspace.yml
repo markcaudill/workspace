@@ -203,6 +203,10 @@
         dest: "{{ workspace_xdg_directories.bin }}/wtfutil"
         state: link
 
+    workspace_sysctl:
+      - name: fs.inotify.max_user_watches
+        value: 524288
+
   handlers:
     - name: start packagekit
       become: true
@@ -386,3 +390,15 @@
         group: "{{ item.group|default(omit) }}"
         mode: "{{ item.mode|default(omit) }}"
       loop: "{{ workspace_files }}"
+
+    - name: ensure sysctl entries are configured
+      become: true
+      ansible.builtin.sysctl:
+        name: "{{ item.name }}"
+        ignoreerrors: "{{ item.ignoreerrors|default(omit) }}"
+        reload: "{{ item.reload|default(omit) }}"
+        state: "{{ item.state|default(omit) }}"
+        sysctl_file: "{{ item.sysctl_file|default(omit) }}"
+        sysctl_set: "{{ item.sysctl_set|default(omit) }}"
+        value: "{{ item.value|default(omit) }}"
+      loop: "{{ workspace_sysctl }}"

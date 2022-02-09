@@ -165,6 +165,20 @@ keys:
 - `group`
 - `mode`
 
+### `workspace_sysctl`
+
+a list of dictionaries of `sysctl` entries to configure (using [`ansible.posix.sysctl`](https://docs.ansible.com/ansible/latest/collections/ansible/posix/sysctl_module.html))
+
+keys are the same as the underlying module:
+
+- `ignoreerrors`
+- `name` (required)
+- `reload`
+- `state`
+- `sysctl_file`
+- `sysctl_set`
+- `value`
+
 ## Execution
 
 Run using `ansible-playbook workspace.yml -K -i 'localhost ansible_connection=local,'`
