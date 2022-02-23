@@ -81,6 +81,18 @@ keys:
 - `remote`
 - `state`
 
+### `workspace_snaps`
+
+a list of dictionaries of [snaps](https://snapcraft.io/) to install (using [`community.general.snap`](https://docs.ansible.com/ansible/latest/collections/community/general/snap_module.html))
+
+keys:
+
+- `become`
+- `channel`
+- `classic`
+- `name` (required)
+- `state`
+
 ### `workspace_pip_packages`
 
 a list of dictionaries of Python packages to install (using [`ansible.builtin.pip`](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/pip_module.html))

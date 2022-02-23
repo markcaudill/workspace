@@ -38,6 +38,7 @@
       - libssl-dev
       - make
       - python3-pip
+      - snapd
       - software-properties-common
       - stow
 
@@ -135,6 +136,10 @@
         method: user
         remote: flathub
       - name: com.spotify.Client
+
+    workspace_snaps:
+      - name: todoist
+        become: true
 
     workspace_pip_packages:
       - { name: "molecule[ansible, lint, docker]", extra_args: --user }
@@ -289,6 +294,15 @@
         remote: "{{ item.remote|default(omit) }}"
         state: "{{ item.state|default(omit) }}"
       loop: "{{ workspace_flatpaks }}"
+
+    - name: ensure snaps are installed
+      become: "{{ item.become|default(false)|bool }}"
+      community.general.snap:
+        channel: "{{ item.channel|default(omit) }}"
+        classic: "{{ item.classic|default(omit) }}"
+        name: "{{ item.name }}"
+        state: "{{ item.state|default(omit) }}"
+      loop: "{{ workspace_snaps }}"
 
 
     - name: ensure services are configured
