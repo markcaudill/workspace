@@ -74,6 +74,7 @@
       - { name: docker, enabled: true, state: started }
 
     workspace_apt_packages:
+      - arduino
       - brave-browser
       - bridge-utils
       - deja-dup
