@@ -80,6 +80,7 @@
       - docker-ce
       - docker-compose
       - duplicity
+      - entr
       - fonts-firacode
       - fonts-noto-color-emoji
       - fritzing
