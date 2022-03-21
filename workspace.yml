@@ -144,6 +144,8 @@
     workspace_snaps:
       - name: todoist
         become: true
+      - name: slack
+        become: true
 
     workspace_pip_packages:
       - { name: "molecule[ansible, lint, docker]", extra_args: --user }
