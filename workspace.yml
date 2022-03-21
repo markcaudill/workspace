@@ -140,11 +140,10 @@
         method: user
         remote: flathub
       - name: com.spotify.Client
+      - name: com.todoist.Todoist
 
     workspace_snaps:
       - name: todoist
-        become: true
-      - name: slack
         become: true
 
     workspace_pip_packages:
