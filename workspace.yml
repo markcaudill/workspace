@@ -60,13 +60,13 @@
       - "ppa:lutris-team/lutris"
 
     workspace_apt_debs:
-      - "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
+      - https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64
       - https://cdn.cloudflare.steamstatic.com/client/installer/steam.deb
       - https://global.download.synology.com/download/Utility/SynologyDriveClient/3.0.1-12674/Ubuntu/Installer/x86_64/synology-drive-client-12674.x86_64.deb
       - https://launcher.mojang.com/download/Minecraft.deb
       - https://prerelease.keybase.io/keybase_amd64.deb
       - https://wallet.trezor.io/data/udev/trezor-udev_2_all.deb
-      - "https://discord.com/api/download?platform=linux&format=deb"
+      - https://discord.com/api/download?platform=linux&format=deb
       - https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2020.03.04_amd64.deb
       - https://protonmail.com/download/bridge/protonmail-bridge_2.1.1-1_amd64.deb
       - https://us02web.zoom.us/client/latest/zoom_amd64.deb
