@@ -115,6 +115,7 @@
       - qemu-kvm
       - ranger
       - scdaemon
+      - slack-desktop
       - terraform
       - thunderbird
       - tidy
