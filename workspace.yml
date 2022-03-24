@@ -97,6 +97,7 @@
       - kicad
       - kitty
       - kubectl
+      - leiningen
       - libarchive-zip-perl
       - libncurses-dev
       - libvirt-clients
