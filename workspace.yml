@@ -38,6 +38,7 @@
       - libssl-dev
       - make
       - python3-pip
+      - rlwrap
       - snapd
       - software-properties-common
       - stow
@@ -188,6 +189,10 @@
       - url: https://get.pulumi.com
         dest: "{{ workspace_xdg_directories.cache_home }}/pulumi_install.sh"
         creates: "{{ ansible_env.HOME }}/.pulumi/bin/pulumi"
+      - url: https://download.clojure.org/install/linux-install-1.10.3.1087.sh
+        dest: "{{ workspace_xdg_directories.cache_home }}/linux-install-1.10.3.1087.sh"
+        creates: "{{ workspace_xdg_directories.bin }}/clj"
+        extra_args: "--prefix {{ ansible_env.HOME }}/.local"
 
     workspace_git_repos:
       - repo: https://github.com/markcaudill/dotfiles.git
@@ -361,7 +366,7 @@
         - name: ensure curl|bash scripts are executed
           become: "{{ item.become | default(false) }}"
           ansible.builtin.command:
-            cmd: bash {{ item.dest }}
+            cmd: bash {{ item.dest }} {{ item.extra_args|default(omit) }}
             creates: "{{ item.creates }}"
           loop: "{{ workspace_curl_bashes }}"
 
