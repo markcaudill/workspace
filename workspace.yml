@@ -77,7 +77,7 @@
       - { name: docker, enabled: true, state: started }
 
     workspace_apt_packages:
-      - brave-browser
+      - aria2
       - bridge-utils
       - deja-dup
       - docker-ce
