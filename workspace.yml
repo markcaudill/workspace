@@ -63,7 +63,7 @@
     workspace_apt_debs:
       - https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64
       - https://cdn.cloudflare.steamstatic.com/client/installer/steam.deb
-      - https://global.download.synology.com/download/Utility/SynologyDriveClient/3.0.1-12674/Ubuntu/Installer/x86_64/synology-drive-client-12674.x86_64.deb
+      - https://global.download.synology.com/download/Utility/SynologyDriveClient/3.1.0-12920/Ubuntu/Installer/x86_64/synology-drive-client-12920.x86_64.deb
       - https://launcher.mojang.com/download/Minecraft.deb
       - https://prerelease.keybase.io/keybase_amd64.deb
       - https://wallet.trezor.io/data/udev/trezor-udev_2_all.deb
