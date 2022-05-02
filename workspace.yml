@@ -195,11 +195,8 @@
         creates: "{{ workspace_xdg_directories.bin }}/clj"
         extra_args: "--prefix {{ ansible_env.HOME }}/.local"
 
-    workspace_git_repos:
-      - repo: https://github.com/markcaudill/dotfiles.git
-        dest: "{{ workspace_xdg_directories.data_home }}/dotfiles"
-        force: true
-
+    workspace_git_repos: []
+        
     workspace_make_targets:
       - chdir: "{{ workspace_xdg_directories.data_home }}/dotfiles"
         target: stow
