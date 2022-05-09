@@ -118,6 +118,7 @@
       - qemu-kvm
       - ranger
       - scdaemon
+      - shellcheck
       - slack-desktop
       - terraform
       - thunderbird
