@@ -69,6 +69,7 @@
       - https://us02web.zoom.us/client/latest/zoom_amd64.deb
       - https://discord.com/api/download?platform=linux&format=deb
       - https://downloads.raspberrypi.org/imager/imager_latest_amd64.deb
+      - https://desktop.docker.com/linux/main/amd64/docker-desktop-4.8.2-amd64.deb
 
     workspace_services:
       - { name: docker, enabled: true, state: started }
