@@ -64,7 +64,6 @@
       - https://global.download.synology.com/download/Utility/SynologyDriveClient/3.1.0-12920/Ubuntu/Installer/x86_64/synology-drive-client-12920.x86_64.deb
       - https://launcher.mojang.com/download/Minecraft.deb
       - https://prerelease.keybase.io/keybase_amd64.deb
-      - https://wallet.trezor.io/data/udev/trezor-udev_2_all.deb
       - https://discord.com/api/download?platform=linux&format=deb
       - https://www.dropbox.com/download?dl=packages/ubuntu/dropbox_2020.03.04_amd64.deb
       - https://protonmail.com/download/bridge/protonmail-bridge_2.1.1-1_amd64.deb
