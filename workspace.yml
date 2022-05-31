@@ -45,14 +45,12 @@
 
     workspace_apt_keys:
       - https://apt.releases.hashicorp.com/gpg
-      - https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
       - https://deb.nodesource.com/gpgkey/nodesource.gpg.key
       - https://download.docker.com/linux/debian/gpg
       - https://packages.cloud.google.com/apt/doc/apt-key.gpg
       - https://cli.github.com/packages/githubcli-archive-keyring.gpg
 
     workspace_apt_repos:
-      - "deb [arch=amd64] https://brave-browser-apt-release.s3.brave.com/ stable main"
       - "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
       - "deb https://apt.kubernetes.io/ kubernetes-xenial main"
       - "deb https://apt.releases.hashicorp.com {{ ansible_distribution_release }} main"
