@@ -94,7 +94,6 @@
       - hopenpgp-tools
       - jq
       - kicad
-      - kitty
       - kubectl
       - leiningen
       - libarchive-zip-perl
@@ -110,10 +109,8 @@
       - nodejs
       - packer
       - pcscd
-      - psensor
       - pv
       - qemu-kvm
-      - ranger
       - scdaemon
       - shellcheck
       - slack-desktop
