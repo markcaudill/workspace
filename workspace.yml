@@ -137,7 +137,6 @@
         method: user
         remote: flathub
       - name: com.spotify.Client
-      - name: com.todoist.Todoist
       - name: md.obsidian.Obsidian
 
     workspace_snaps: []
