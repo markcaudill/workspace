@@ -150,10 +150,6 @@
         dest: "{{ workspace_xdg_directories.bin }}"
         include: ctlptl
         creates: "{{ workspace_xdg_directories.bin }}/ctlptl"
-      - name: drone cli
-        url: https://github.com/drone/drone-cli/releases/latest/download/drone_linux_amd64.tar.gz
-        dest: "{{ workspace_xdg_directories.bin }}"
-        creates: "{{ workspace_xdg_directories.bin }}/drone"
       - name: go
         url: https://go.dev/dl/go1.18.linux-amd64.tar.gz
         dest: "{{ workspace_xdg_directories.data_home }}"
