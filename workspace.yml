@@ -74,6 +74,7 @@
     workspace_apt_packages:
       - aria2
       - bridge-utils
+      - buildah
       - deja-dup
       - docker-ce
       - docker-compose
@@ -106,6 +107,7 @@
       - nodejs
       - packer
       - pcscd
+      - podman
       - pv
       - qemu-kvm
       - scdaemon
