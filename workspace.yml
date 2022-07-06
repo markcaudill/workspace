@@ -74,7 +74,6 @@
       - { name: docker, enabled: true, state: started }
 
     workspace_apt_packages:
-      - apt-files
       - aria2
       - bridge-utils
       - buildah
