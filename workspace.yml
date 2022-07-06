@@ -76,6 +76,7 @@
 
     workspace_apt_packages:
       - aria2
+      - bat
       - bridge-utils
       - buildah
       - crun
