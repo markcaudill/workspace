@@ -43,7 +43,8 @@
       - software-properties-common
       - stow
 
-    workspace_prerequisite_debs: []
+    workspace_prerequisite_debs:
+      - "https://packages.microsoft.com/config/ubuntu/{{ ansible_lsb.release }}/packages-microsoft-prod.deb"
 
     workspace_apt_keys:
       - https://apt.releases.hashicorp.com/gpg
@@ -112,6 +113,7 @@
       - packer
       - pcscd
       - podman
+      - powershell
       - pv
       - qemu-kvm
       - scdaemon
