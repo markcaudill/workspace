@@ -99,6 +99,7 @@
       - leiningen
       - libarchive-zip-perl
       - libncurses-dev
+      - libseccomp2
       - libvirt-clients
       - libvirt-daemon-system
       - lm-sensors
