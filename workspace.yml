@@ -119,7 +119,6 @@
       - scdaemon
       - shellcheck
       - skopeo
-      - slack-desktop
       - terraform
       - thunderbird
       - tidy
