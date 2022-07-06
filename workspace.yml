@@ -237,7 +237,6 @@
       failed_when: false
       notify: start packagekit
 
-
     - name: ensure directories are present
       ansible.builtin.file:
         path: "{{ item.path }}"
@@ -265,20 +264,17 @@
       loop: "{{ workspace_apt_keys }}"
       failed_when: false
 
-
     - name: ensure apt repos are configured
       become: true
       ansible.builtin.apt_repository:
         repo: "{{ item }}"
       loop: "{{ workspace_apt_repos }}"
 
-
     - name: ensure packages are installed
       become: true
       ansible.builtin.apt:
         name: "{{ workspace_apt_packages }}"
         update_cache: true
-
 
     - name: ensure package debs are installed
       become: true
@@ -306,6 +302,7 @@
         remote: "{{ item.remote|default(omit) }}"
         state: "{{ item.state|default(omit) }}"
       loop: "{{ workspace_flatpaks }}"
+
 
     - name: ensure snaps are installed
       become: "{{ item.become|default(false)|bool }}"
@@ -390,7 +387,6 @@
       changed_when: false
       loop: "{{ workspace_git_repos }}"
 
-
     - name: ensure make targets are run
       community.general.make:
         chdir: "{{ item.chdir }}"
@@ -399,7 +395,6 @@
       failed_when: item.failed_when
       loop: "{{ workspace_make_targets }}"
 
-
     - name: ensure users are in groups
       become: yes
       ansible.builtin.user:
@@ -407,7 +402,6 @@
         append: true
         groups: "{{ item.groups }}"
       loop: "{{ workspace_user_groups }}"
-
 
     - name: ensure files and links are in place
       ansible.builtin.file:
