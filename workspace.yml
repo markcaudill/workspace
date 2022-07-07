@@ -85,6 +85,7 @@
       - docker-compose
       - duplicity
       - entr
+      - exa
       - fonts-firacode
       - fonts-noto-color-emoji
       - fritzing
