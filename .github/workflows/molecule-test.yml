@@ -1,5 +1,5 @@
 ---
-name: CI
+name: molecule test
 on:
   push:
     branches: [main]

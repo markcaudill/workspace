@@ -1,7 +1,10 @@
 # workspace
 
-[![GitHub Workflow Status
-(branch)](https://img.shields.io/github/workflow/status/markcaudill/workspace/CI/main)](https://github.com/markcaudill/workspace/actions/workflows/ci.yml)
+[![Ansible
+Role](https://img.shields.io/ansible/role/59675)](https://galaxy.ansible.com/markcaudill/workspace)
+![Ansible Quality Score](https://img.shields.io/ansible/quality/59675)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/markcaudill/workspace/molecule-test?label=test)](https://github.com/markcaudill/workspace/actions/workflows/molecule-test.yml)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/markcaudill/workspace/galaxy-deploy?label=deploy)](https://github.com/markcaudill/workspace/actions/workflows/galaxy-deploy.yml)
 [![GitHub](https://img.shields.io/github/license/markcaudill/workspace)](LICENSE)
 
 ## Description
