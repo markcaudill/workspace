@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Ensure /usr/share/man/man1 directory exists"
+      ansible.builtin.file:
+        path: "/usr/share/man/man1"
+        state: directory
+    - name: "Include workspace"
+      include_role:
+        name: "workspace"

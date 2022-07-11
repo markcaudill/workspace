@@ -1,0 +1,198 @@
+---
+
+- name: stop packagekit so it won't interfere with package installation
+  become: true
+  ansible.builtin.service:
+    name: packagekit
+    state: stopped
+  failed_when: false
+  notify: start packagekit
+
+- name: ensure directories are present
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    mode: "{{ item.mode }}"
+    state: directory
+  loop: "{{ workspace_directories }}"
+
+- name: ensure prerequisite packages are installed
+  become: true
+  ansible.builtin.apt:
+    name: "{{ workspace_prerequisite_packages }}"
+    update_cache: true
+
+- name: ensure prerequisite debs are installed
+  become: true
+  ansible.builtin.apt:
+    deb: "{{ item }}"
+  loop: "{{ workspace_prerequisite_debs }}"
+  failed_when: false
+
+- name: ensure apt keys are installed
+  become: true
+  ansible.builtin.apt_key:
+    url: "{{ item }}"
+  loop: "{{ workspace_apt_keys }}"
+  failed_when: false
+
+- name: ensure apt repos are configured
+  become: true
+  ansible.builtin.apt_repository:
+    repo: "{{ item }}"
+  loop: "{{ workspace_apt_repos }}"
+
+- name: ensure packages are installed
+  become: true
+  ansible.builtin.apt:
+    name: "{{ workspace_apt_packages }}"
+    update_cache: true
+
+- name: ensure package debs are installed
+  become: true
+  ansible.builtin.apt:
+    deb: "{{ item }}"
+  loop: "{{ workspace_apt_debs }}"
+  failed_when: false
+
+- name: ensure flatpak remotes are configured
+  become: "{{ item.become|default(false)|bool }}"
+  community.general.flatpak_remote:
+    method: "{{ item.method|default('user') }}"
+    name: "{{ item.name }}"
+    flatpakrepo_url: "{{ item.flatpakrepo_url|default(omit) }}"
+    state: "{{ item.state|default(omit) }}"
+  loop: "{{ workspace_flatpak_remotes }}"
+
+
+- name: ensure flatpaks are installed
+  become: "{{ item.become|default(false)|bool }}"
+  community.general.flatpak:
+    method: "{{ item.method|default('user') }}"
+    name: "{{ item.name }}"
+    no_dependencies: "{{ item.no_dependencies|default(omit) }}"
+    remote: "{{ item.remote|default(omit) }}"
+    state: "{{ item.state|default(omit) }}"
+  loop: "{{ workspace_flatpaks }}"
+
+
+- name: ensure snaps are installed
+  become: "{{ item.become|default(false)|bool }}"
+  community.general.snap:
+    channel: "{{ item.channel|default(omit) }}"
+    classic: "{{ item.classic|default(omit) }}"
+    name: "{{ item.name }}"
+    state: "{{ item.state|default(omit) }}"
+  loop: "{{ workspace_snaps }}"
+
+
+- name: ensure services are configured
+  become: true
+  ansible.builtin.service:
+    name: "{{ item.name }}"
+    enabled: "{{ item.enabled }}"
+    state: "{{ item.state }}"
+  loop: "{{ workspace_services }}"
+  tags: [molecule-notest]
+
+
+- name: ensure pip packages are installed
+  environment: "{{ workspace_environment }}"
+  ansible.builtin.pip:
+    name: "{{ item.name }}"
+    extra_args: "{{ item.extra_args }}"
+  loop: "{{ workspace_pip_packages }}"
+
+
+- name: ensure archives are installed
+  ansible.builtin.unarchive:
+    src: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    remote_src: true
+    include: "{{ item.include | default(omit) }}"
+    creates: "{{ item.creates | default(omit) }}"
+  loop: "{{ workspace_archives }}"
+
+
+- name: ensure go packages are installed
+  environment: "{{ workspace_environment }}"
+  ansible.builtin.command:
+    cmd: "go install {{ item.package }}"
+    creates: "{{ item.creates }}"
+  loop: "{{ workspace_go_packages }}"
+
+
+- name: ensure curl|bash software is installed
+  environment: "{{ workspace_environment }}"
+  block:
+    - name: ensure curl|bash scripts are downloaded
+      become: "{{ item.become|default(false) }}"
+      ansible.builtin.get_url:
+        url: "{{ item.url }}"
+        dest: "{{ item.dest }}"
+        mode: "{{ item.mode | default('0700') }}"
+      loop: "{{ workspace_curl_bashes }}"
+
+    - name: ensure curl|bash scripts are executed
+      become: "{{ item.become | default(false) }}"
+      ansible.builtin.command:
+        cmd: bash {{ item.dest }} {{ item.extra_args|default(omit) }}
+        creates: "{{ item.creates }}"
+      loop: "{{ workspace_curl_bashes }}"
+
+- name: ensure direct-download software is installed
+  environment: "{{ workspace_environment }}"
+  block:
+    - name: ensure direct-download software is downloaded
+      become: "{{ item.become|default(false) }}"
+      ansible.builtin.get_url:
+        url: "{{ item.url }}"
+        dest: "{{ item.dest }}"
+        mode: "{{ item.mode | default('0700') }}"
+      loop: "{{ workspace_bins }}"
+
+
+- name: ensure git repositories are cloned
+  ansible.builtin.git: # noqa git-latest
+    repo: "{{ item.repo }}"
+    dest: "{{ item.dest }}"
+    force: "{{ item.force|default(omit) }}"
+  changed_when: false
+  loop: "{{ workspace_git_repos }}"
+
+- name: ensure make targets are run
+  community.general.make:
+    chdir: "{{ item.chdir }}"
+    target: "{{ item.target }}"
+  changed_when: false
+  failed_when: item.failed_when
+  loop: "{{ workspace_make_targets }}"
+
+- name: ensure users are in groups
+  become: yes
+  ansible.builtin.user:
+    name: "{{ item.user }}"
+    append: true
+    groups: "{{ item.groups }}"
+  loop: "{{ workspace_user_groups }}"
+
+- name: ensure files and links are in place
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: "{{ item.state }}"
+    owner: "{{ item.owner|default(omit) }}"
+    group: "{{ item.group|default(omit) }}"
+    mode: "{{ item.mode|default(omit) }}"
+  loop: "{{ workspace_files }}"
+
+- name: ensure sysctl entries are configured
+  become: true
+  ansible.builtin.sysctl:
+    name: "{{ item.name }}"
+    ignoreerrors: "{{ item.ignoreerrors|default(omit) }}"
+    reload: "{{ item.reload|default(omit) }}"
+    state: "{{ item.state|default(omit) }}"
+    sysctl_file: "{{ item.sysctl_file|default(omit) }}"
+    sysctl_set: "{{ item.sysctl_set|default(omit) }}"
+    value: "{{ item.value|default(omit) }}"
+  loop: "{{ workspace_sysctl }}"
