@@ -118,8 +118,10 @@
       - powershell
       - pv
       - qemu-kvm
+      - rcs
       - scdaemon
       - shellcheck
+      - simple-revision-control
       - skopeo
       - terraform
       - thunderbird
