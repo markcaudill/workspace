@@ -55,33 +55,33 @@
   failed_when: false
 
 - name: ensure flatpak remotes are configured
-  become: "{{ item.become|default(false)|bool }}"
+  become: "{{ item.become | default(false) | bool }}"
   community.general.flatpak_remote:
-    method: "{{ item.method|default('user') }}"
+    method: "{{ item.method | default('user') }}"
     name: "{{ item.name }}"
-    flatpakrepo_url: "{{ item.flatpakrepo_url|default(omit) }}"
-    state: "{{ item.state|default(omit) }}"
+    flatpakrepo_url: "{{ item.flatpakrepo_url | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
   loop: "{{ workspace_flatpak_remotes }}"
 
 
 - name: ensure flatpaks are installed
-  become: "{{ item.become|default(false)|bool }}"
+  become: "{{ item.become | default(false) | bool }}"
   community.general.flatpak:
-    method: "{{ item.method|default('user') }}"
+    method: "{{ item.method | default('user') }}"
     name: "{{ item.name }}"
-    no_dependencies: "{{ item.no_dependencies|default(omit) }}"
-    remote: "{{ item.remote|default(omit) }}"
-    state: "{{ item.state|default(omit) }}"
+    no_dependencies: "{{ item.no_dependencies | default(omit) }}"
+    remote: "{{ item.remote | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
   loop: "{{ workspace_flatpaks }}"
 
 
 - name: ensure snaps are installed
-  become: "{{ item.become|default(false)|bool }}"
+  become: "{{ item.become | default(false) | bool }}"
   community.general.snap:
-    channel: "{{ item.channel|default(omit) }}"
-    classic: "{{ item.classic|default(omit) }}"
+    channel: "{{ item.channel | default(omit) }}"
+    classic: "{{ item.classic | default(omit) }}"
     name: "{{ item.name }}"
-    state: "{{ item.state|default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
   loop: "{{ workspace_snaps }}"
 
 
@@ -125,7 +125,7 @@
   environment: "{{ workspace_environment }}"
   block:
     - name: ensure curl|bash scripts are downloaded
-      become: "{{ item.become|default(false) }}"
+      become: "{{ item.become | default(false) }}"
       ansible.builtin.get_url:
         url: "{{ item.url }}"
         dest: "{{ item.dest }}"
@@ -135,7 +135,7 @@
     - name: ensure curl|bash scripts are executed
       become: "{{ item.become | default(false) }}"
       ansible.builtin.command:
-        cmd: bash {{ item.dest }} {{ item.extra_args|default(omit) }}
+        cmd: bash {{ item.dest }} {{ item.extra_args | default(omit) }}
         creates: "{{ item.creates }}"
       loop: "{{ workspace_curl_bashes }}"
 
@@ -143,7 +143,7 @@
   environment: "{{ workspace_environment }}"
   block:
     - name: ensure direct-download software is downloaded
-      become: "{{ item.become|default(false) }}"
+      become: "{{ item.become | default(false) }}"
       ansible.builtin.get_url:
         url: "{{ item.url }}"
         dest: "{{ item.dest }}"
@@ -155,7 +155,7 @@
   ansible.builtin.git: # noqa git-latest
     repo: "{{ item.repo }}"
     dest: "{{ item.dest }}"
-    force: "{{ item.force|default(omit) }}"
+    force: "{{ item.force | default(omit) }}"
   changed_when: false
   loop: "{{ workspace_git_repos }}"
 
@@ -180,19 +180,19 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
     state: "{{ item.state }}"
-    owner: "{{ item.owner|default(omit) }}"
-    group: "{{ item.group|default(omit) }}"
-    mode: "{{ item.mode|default(omit) }}"
+    owner: "{{ item.owner | default(omit) }}"
+    group: "{{ item.group | default(omit) }}"
+    mode: "{{ item.mode | default(omit) }}"
   loop: "{{ workspace_files }}"
 
 - name: ensure sysctl entries are configured
   become: true
   ansible.builtin.sysctl:
     name: "{{ item.name }}"
-    ignoreerrors: "{{ item.ignoreerrors|default(omit) }}"
-    reload: "{{ item.reload|default(omit) }}"
-    state: "{{ item.state|default(omit) }}"
-    sysctl_file: "{{ item.sysctl_file|default(omit) }}"
-    sysctl_set: "{{ item.sysctl_set|default(omit) }}"
-    value: "{{ item.value|default(omit) }}"
+    ignoreerrors: "{{ item.ignoreerrors | default(omit) }}"
+    reload: "{{ item.reload | default(omit) }}"
+    state: "{{ item.state | default(omit) }}"
+    sysctl_file: "{{ item.sysctl_file | default(omit) }}"
+    sysctl_set: "{{ item.sysctl_set | default(omit) }}"
+    value: "{{ item.value | default(omit) }}"
   loop: "{{ workspace_sysctl }}"
