@@ -1,0 +1,17 @@
+galaxy_info:
+  author: Mark Caudill
+  namespace: markcaudill
+  description: Workspace preparation role
+
+  license: MIT
+
+  min_ansible_version: '2.1'
+
+  platforms:
+  - name: Ubuntu
+    versions:
+    - jammy
+
+  galaxy_tags: []
+
+dependencies: []
