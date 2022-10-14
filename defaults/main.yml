@@ -168,6 +168,7 @@ workspace_curl_bashes: []
 #
 # - `repo` (required)
 # - `dest` (required)
+# - `version`
 # - `force`
 workspace_git_repos: []
 

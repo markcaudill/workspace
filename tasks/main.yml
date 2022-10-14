@@ -155,6 +155,7 @@
   ansible.builtin.git: # noqa git-latest
     repo: "{{ item.repo }}"
     dest: "{{ item.dest }}"
+    version: "{{ item.version | default(omit) }}"
     force: "{{ item.force | default(omit) }}"
   changed_when: false
   loop: "{{ workspace_git_repos }}"
