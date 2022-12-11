@@ -1,4 +1,4 @@
-- name: start packagekit
+- name: Start packagekit
   become: true
   ansible.builtin.service:
     name: packagekit
