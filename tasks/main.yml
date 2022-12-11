@@ -63,7 +63,6 @@
     state: "{{ item.state | default(omit) }}"
   loop: "{{ workspace_flatpak_remotes }}"
 
-
 - name: Ensure flatpaks are installed
   become: "{{ item.become | default(false) | bool }}"
   community.general.flatpak:
@@ -74,7 +73,6 @@
     state: "{{ item.state | default(omit) }}"
   loop: "{{ workspace_flatpaks }}"
 
-
 - name: Ensure snaps are installed
   become: "{{ item.become | default(false) | bool }}"
   community.general.snap:
@@ -83,7 +81,6 @@
     name: "{{ item.name }}"
     state: "{{ item.state | default(omit) }}"
   loop: "{{ workspace_snaps }}"
-
 
 - name: Ensure services are configured
   become: true
@@ -94,14 +91,12 @@
   loop: "{{ workspace_services }}"
   tags: [molecule-notest]
 
-
 - name: Ensure pip packages are installed
   environment: "{{ workspace_environment }}"
   ansible.builtin.pip:
     name: "{{ item.name }}"
     extra_args: "{{ item.extra_args }}"
   loop: "{{ workspace_pip_packages }}"
-
 
 - name: Ensure archives are installed
   ansible.builtin.unarchive:
@@ -112,14 +107,12 @@
     creates: "{{ item.creates | default(omit) }}"
   loop: "{{ workspace_archives }}"
 
-
 - name: Ensure go packages are installed
   environment: "{{ workspace_environment }}"
   ansible.builtin.command:
     cmd: "go install {{ item.package }}"
     creates: "{{ item.creates }}"
   loop: "{{ workspace_go_packages }}"
-
 
 - name: Ensure curl|bash software is installed
   environment: "{{ workspace_environment }}"
@@ -149,7 +142,6 @@
         dest: "{{ item.dest }}"
         mode: "{{ item.mode | default('0700') }}"
       loop: "{{ workspace_bins }}"
-
 
 - name: Ensure git repositories are cloned
   ansible.builtin.git: # noqa git-latest
