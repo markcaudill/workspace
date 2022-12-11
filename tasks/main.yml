@@ -188,7 +188,7 @@
 
 - name: ensure sysctl entries are configured
   become: true
-  ansible.builtin.sysctl:
+  ansible.posix.sysctl:
     name: "{{ item.name }}"
     ignoreerrors: "{{ item.ignoreerrors | default(omit) }}"
     reload: "{{ item.reload | default(omit) }}"
