@@ -6,7 +6,7 @@
     name: packagekit
     state: stopped
   failed_when: false
-  notify: start packagekit
+  notify: Start packagekit
 
 - name: Ensure directories are present
   ansible.builtin.file:
